@@ -91,11 +91,16 @@ class stack_ext {
 
     // прибавить другой массив в конец
     bool concat(const stack_ext& st) {
-        if (!st.length()) return 1;
-        if (!_fit(_len + st._len)) return 0;
+        return concat(st._buf, st._len);
+    }
 
-        memcpy((void*)(_buf + _len), (void*)(st._buf), st._len * sizeof(T));
-        _len += st._len;
+    // прибавить другой массив в конец
+    bool concat(const T* buf, size_t len) {
+        if (!len) return 1;
+        if (!buf || !_fit(_len + len)) return 0;
+
+        memcpy((void*)(_buf + _len), (void*)(buf), len * sizeof(T));
+        _len += len;
         return 1;
     }
 

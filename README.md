@@ -81,6 +81,7 @@ bool insert(int idx, const T& val);
 
 // прибавить другой массив в конец
 bool concat(const stack_ext& st);
+bool concat(const T* buf, size_t len);
 
 // прибавить другой массив в конец
 bool operator+=(const stack_ext& st);
