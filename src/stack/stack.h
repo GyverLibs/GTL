@@ -21,14 +21,17 @@ class stackT : public stack_ext<T> {
     stackT& operator=(stack_ext<T>&& st) = delete;
 
     stackT(const stackT<T, array_t>& st) {
+        if (this == &st) return;
         _array = st._array;
         _len = st._len;
         _update();
     }
     stackT& operator=(const stackT<T, array_t>& st) {
+        if (this == &st) return *this;
         _array = st._array;
         _len = st._len;
         _update();
+        return *this;
     }
 
 #if __cplusplus >= 201103L
@@ -86,6 +89,7 @@ class stack_copy : public stackT<T, array_copy> {
     using stackT<T, array_copy>::stackT;
 
     void move(stack_copy<T>& st) {
+        if (this == &st) return;
         _array = st._array;
         _len = st._len;
         _update();
@@ -121,6 +125,7 @@ class stack_uniq : public stackT<T, array_uniq> {
     }
 
     void move(stack_uniq<T>& st) noexcept {
+        if (this == &st) return;
         _array = st._array;
         _len = st._len;
         _update();
