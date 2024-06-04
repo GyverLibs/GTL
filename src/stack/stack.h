@@ -11,7 +11,8 @@ template <typename T, template <typename> class array_t>
 class stackT : public stack_ext<T> {
    public:
     // зарезервировать память в кол-ве элементов
-    stackT(size_t size = 0) {
+    stackT() {}
+    stackT(size_t size) {
         reserve(size);
     }
 
@@ -86,6 +87,7 @@ class stack_copy : public stackT<T, array_copy> {
     using stackT<T, array_copy>::_len;
 
    public:
+    stack_copy() {}
     using stackT<T, array_copy>::stackT;
 
     void move(stack_copy<T>& st) {
@@ -101,6 +103,7 @@ template <typename T>
 class stack_shared : public stackT<T, array_shared> {
    public:
     using stackT<T, array_shared>::stackT;
+    stack_shared() {}
 };
 
 // stack_uniq
@@ -111,6 +114,7 @@ class stack_uniq : public stackT<T, array_uniq> {
     using stackT<T, array_uniq>::_len;
 
    public:
+    stack_uniq() {}
     using stackT<T, array_uniq>::stackT;
 
     stack_uniq(const stack_uniq<T>& st) = delete;
