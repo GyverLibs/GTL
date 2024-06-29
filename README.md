@@ -111,7 +111,7 @@ size_t capacity();
 int indexOf(const T& val);
 
 // содержит элемент
-bool includes(const T& val);
+bool has(const T& val);
 
 // удалить по значению (true если элемента нет)
 bool removeByVal(const T& val);

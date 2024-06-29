@@ -84,6 +84,8 @@ template <typename T>
 class stack_copy : public stackT<T, array_copy> {
     using stackT<T, array_copy>::_update;
     using stackT<T, array_copy>::_array;
+
+   protected:
     using stackT<T, array_copy>::_len;
 
    public:
@@ -111,6 +113,8 @@ template <typename T>
 class stack_uniq : public stackT<T, array_uniq> {
     using stackT<T, array_uniq>::_array;
     using stackT<T, array_uniq>::_update;
+
+   protected:
     using stackT<T, array_uniq>::_len;
 
    public:

@@ -156,7 +156,7 @@ class stack_ext {
     }
 
     // содержит элемент
-    bool includes(const T& val) const {
+    bool has(const T& val) const {
         return indexOf(val) != -1;
     }
 
@@ -183,13 +183,18 @@ class stack_ext {
     }
 
     // буфер существует
-    bool valid() const {
+    inline bool valid() const {
         return _buf;
     }
 
     // буфер существует
     explicit operator bool() const {
         return _buf;
+    }
+
+    //
+    bool includes(const T& val) const __attribute__((deprecated)) {
+        return has(val);
     }
 
    protected:
