@@ -145,6 +145,11 @@ class stack_ext {
         return _buf ? _cap : 0;
     }
 
+    // текущий размер в байтах
+    size_t size() const {
+        return length() * sizeof(T);
+    }
+
     // позиция элемента (-1 если не найден)
     int indexOf(const T& val) const {
         if (_buf) {
