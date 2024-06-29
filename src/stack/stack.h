@@ -59,6 +59,7 @@ class stackT : public stack_ext<T> {
     // удалить буфер
     void reset() {
         _array.reset();
+        _update();
     }
 
     // есть место для добавления (всегда true)
