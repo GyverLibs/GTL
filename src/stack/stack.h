@@ -137,6 +137,7 @@ class stack_uniq : public stackT<T, array_uniq> {
         if (this == &st) return;
         _array = st._array;
         _len = st._len;
+        st._update();
         _update();
     }
 };
