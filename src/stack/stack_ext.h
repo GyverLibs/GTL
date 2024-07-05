@@ -95,11 +95,15 @@ class stack_ext {
     }
 
     // прибавить другой массив в конец
-    bool concat(const T* buf, size_t len) {
+    bool concat(const T* buf, size_t len, bool pgm = false) {
         if (!len) return 1;
         if (!buf || !_fit(_len + len)) return 0;
 
-        memcpy((void*)(_buf + _len), (void*)(buf), len * sizeof(T));
+        if (pgm) {
+            memcpy_P((void*)(_buf + _len), (void*)(buf), len * sizeof(T));
+        } else {
+            memcpy((void*)(_buf + _len), (void*)(buf), len * sizeof(T));
+        }
         _len += len;
         return 1;
     }
@@ -130,9 +134,11 @@ class stack_ext {
         return _buf ? _len : 0;
     }
 
-    // установить количество элементов
-    void setLength(size_t newlen) {
-        if (_buf) _len = newlen;
+    // установить количество элементов (само вызовет reserve)
+    bool setLength(size_t len) {
+        if (!_fit(_len + len)) return 0;
+        _len = len;
+        return 1;
     }
 
     // есть место для добавления

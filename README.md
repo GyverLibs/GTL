@@ -81,7 +81,7 @@ bool insert(int idx, const T& val);
 
 // прибавить другой массив в конец
 bool concat(const stack_ext& st);
-bool concat(const T* buf, size_t len);
+bool concat(const T* buf, size_t len, bool pgm = false);
 
 // прибавить другой массив в конец
 bool operator+=(const stack_ext& st);
@@ -101,8 +101,8 @@ size_t size();
 // количество элементов
 size_t length();
 
-// установить количество элементов
-void setLength(size_t newlen);
+// установить количество элементов (само вызовет reserve)
+bool setLength(size_t len);
 
 // есть место для добавления
 bool canAdd();
