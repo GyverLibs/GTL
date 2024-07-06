@@ -108,6 +108,11 @@ class stack_ext {
         return 1;
     }
 
+    // прибавить другой массив в конец, синоним concat
+    size_t write(const T* buf, size_t len) {
+        return concat(buf, len, false) ? len : 0;
+    }
+
     // прибавить другой массив в конец
     bool operator+=(const stack_ext& st) {
         return concat(st);
