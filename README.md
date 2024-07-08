@@ -76,6 +76,9 @@ T& unpeek();
 // удалить элемент. Отрицательный - с конца
 bool remove(int idx);
 
+// удалить несколько элементов, начиная с индекса
+bool remove(size_t from, size_t amount);
+
 // вставить элемент на индекс (допускается индекс length())
 bool insert(int idx, const T& val);
 

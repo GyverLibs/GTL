@@ -45,7 +45,7 @@ class stack_ext {
     // добавить в начало
     bool shift(const T& val) {
         if (!_fit(_len + 1)) return 0;
-        memmove((void*)(_buf + 1), (void*)(_buf), _len * sizeof(T));
+        memmove((void*)(_buf + 1), (const void*)(_buf), _len * sizeof(T));
         _buf[0] = val;
         _len++;
         return 1;
@@ -56,7 +56,7 @@ class stack_ext {
         if (!length()) return T();
         T t = _buf[0];
         _len--;
-        memmove((void*)(_buf), (void*)(_buf + 1), _len * sizeof(T));
+        memmove((void*)(_buf), (const void*)(_buf + 1), _len * sizeof(T));
         return t;
     }
 
@@ -70,8 +70,22 @@ class stack_ext {
         if (!length() || idx >= (int)_len || idx < -(int)_len) return 0;
 
         if (idx < 0) idx += _len;
-        memcpy((void*)(_buf + idx), (void*)(_buf + idx + 1), (_len - idx - 1) * sizeof(T));
+        memcpy((void*)(_buf + idx), (const void*)(_buf + idx + 1), (_len - idx - 1) * sizeof(T));
         _len--;
+        return 1;
+    }
+
+    // удалить несколько элементов, начиная с индекса
+    bool remove(size_t from, size_t amount) {
+        if (!length() || !amount || from >= _len) return 0;
+        size_t to = from + amount;
+        if (to >= _len - 1) {
+            _len = from;
+            return 1;
+        }
+
+        memmove((void*)(_buf + from), (const void*)(_buf + to), (_len - to) * sizeof(T));
+        _len -= amount;
         return 1;
     }
 
@@ -83,7 +97,7 @@ class stack_ext {
         if (idx == 0) return shift(val);
         else if (idx == (int)_len) return push(val);
 
-        memmove((void*)(_buf + idx + 1), (void*)(_buf + idx), (_len - idx) * sizeof(T));
+        memmove((void*)(_buf + idx + 1), (const void*)(_buf + idx), (_len - idx) * sizeof(T));
         _buf[idx] = val;
         _len++;
         return 1;
@@ -100,9 +114,9 @@ class stack_ext {
         if (!buf || !_fit(_len + len)) return 0;
 
         if (pgm) {
-            memcpy_P((void*)(_buf + _len), (void*)(buf), len * sizeof(T));
+            memcpy_P((void*)(_buf + _len), (const void*)(buf), len * sizeof(T));
         } else {
-            memcpy((void*)(_buf + _len), (void*)(buf), len * sizeof(T));
+            memcpy((void*)(_buf + _len), (const void*)(buf), len * sizeof(T));
         }
         _len += len;
         return 1;
