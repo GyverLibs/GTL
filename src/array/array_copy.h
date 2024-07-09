@@ -93,6 +93,11 @@ class array_copy {
         _buf = nullptr;
         _size = 0;
     }
+
+    // очистить (заполнить нулями)
+    void clear() {
+        if (_buf) memset(_buf, 0, _size * sizeof(T));
+    }
 };
 
 }  // namespace gtl

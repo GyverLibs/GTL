@@ -110,6 +110,11 @@ class array_shared {
         }
     }
 
+    // очистить (заполнить нулями)
+    void clear() {
+        if (_buf) memset(_buf, 0, _size * sizeof(T));
+    }
+
     // освободить экземпляр, удалить буфер если экземпляр был последний
     void release() {
         if (_data && --(_data->count) == 0) {
