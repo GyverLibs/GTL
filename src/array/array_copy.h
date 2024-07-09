@@ -96,7 +96,7 @@ class array_copy {
 
     // очистить (заполнить нулями)
     void clear() {
-        if (_buf) memset(_buf, 0, _size * sizeof(T));
+        if (buf()) memset(buf(), 0, size() * sizeof(T));
     }
 };
 
