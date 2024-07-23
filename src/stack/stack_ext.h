@@ -33,8 +33,8 @@ class stack_ext {
     }
 
     // получить с конца и удалить
-    T pop() {
-        return length() ? _buf[(_len--) - 1] : T();
+    T& pop() {
+        return _buf[(_len--) - 1];
     }
 
     // прочитать с конца не удаляя
