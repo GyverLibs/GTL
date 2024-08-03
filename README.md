@@ -184,10 +184,36 @@ void clear();
 T* buffer;
 ```
 
+### gtl::linked_list
+Связанный список для создания динамического массива объектов в стеке. Смотри пример в examples
+```cpp
+// получить итератор
+list_iter iter();
+
+// добавить
+void add(node& node);
+
+// добавить
+void add(node* node);
+
+// удалить
+void remove(node& node);
+
+// удалить
+void remove(node* node);
+
+// длина списка
+size_t length();
+
+// очистить список
+void clear();
+```
+
 <a id="versions"></a>
 
 ## Версии
 - v1.0
+- v1.1 - добавлен связанный список
 
 <a id="install"></a>
 ## Установка
