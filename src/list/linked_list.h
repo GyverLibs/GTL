@@ -1,22 +1,33 @@
 #pragma once
 #include <Arduino.h>
 
-#include "node.h"
+#include "list_node.h"
 
 namespace gtl {
 
 class list_iter {
    public:
-    list_iter(node* last) : _p(last) {}
+    list_iter(list_node* last) : _p(last) {}
 
-    node* next() {
-        node* buf = _p;
+    list_node* next() {
+        _idx++;
+        _buf = _p;
         _p = _p->_prev;
-        return buf;
+        return _buf;
+    }
+
+    inline list_node* get() {
+        return _buf;
+    }
+
+    inline int index() {
+        return _idx;
     }
 
    private:
-    node* _p;
+    list_node* _p = nullptr;
+    list_node* _buf = nullptr;
+    int _idx = -1;
 };
 
 class linked_list {
@@ -27,27 +38,41 @@ class linked_list {
     }
 
     // добавить
-    void add(node& node) {
+    void add(list_node& node) {
         add(&node);
     }
 
     // добавить
-    void add(node* node) {
+    void add(list_node* node) {
         node->_prev = _last;
         _last = node;
     }
 
+    // список содержит
+    bool has(list_node& node) {
+        return has(&node);
+    }
+
+    // список содержит
+    bool has(list_node* node) {
+        list_iter iter(_last);
+        while (iter.next()) {
+            if (iter.get() == node) return true;
+        }
+        return false;
+    }
+
     // удалить
-    void remove(node& node) {
+    void remove(list_node& node) {
         remove(&node);
     }
 
     // удалить
-    void remove(node* node) {
+    void remove(list_node* node) {
         if (_last == node) {
             _last = _last->_prev;
         } else {
-            gtl::node* p = _last;
+            list_node* p = _last;
             while (p) {
                 if (p->_prev == node) {
                     p->_prev = p->_prev->_prev;
@@ -61,7 +86,7 @@ class linked_list {
     // длина списка
     size_t length() {
         size_t len = 0;
-        node* p = _last;
+        list_node* p = _last;
         while (p) {
             len++;
             p = p->_prev;
@@ -75,7 +100,7 @@ class linked_list {
     }
 
    private:
-    node* _last = nullptr;
+    list_node* _last = nullptr;
 };
 
 }  // namespace gtl

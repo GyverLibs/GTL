@@ -1,8 +1,8 @@
 #include <Arduino.h>
 #include <GTL.h>
 
-// наследуем node
-class Test : public gtl::node {
+// наследуем list_node
+class Test : public gtl::list_node {
    public:
     Test(int i) : i(i) {}
 

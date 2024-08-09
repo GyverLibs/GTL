@@ -191,16 +191,22 @@ T* buffer;
 list_iter iter();
 
 // добавить
-void add(node& node);
+void add(list_node& node);
 
 // добавить
-void add(node* node);
+void add(list_node* node);
 
 // удалить
-void remove(node& node);
+void remove(list_node& node);
 
 // удалить
-void remove(node* node);
+void remove(list_node* node);
+
+// список содержит
+bool has(list_node& node);
+
+// список содержит
+bool has(list_node* node);
 
 // длина списка
 size_t length();
