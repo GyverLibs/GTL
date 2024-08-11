@@ -99,7 +99,7 @@ class linked_list {
         _last = nullptr;
     }
 
-   private:
+   protected:
     list_node* _last = nullptr;
 };
 
