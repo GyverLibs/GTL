@@ -12,7 +12,7 @@ class list_iter {
     list_node* next() {
         _idx++;
         _buf = _p;
-        _p = _p->_prev;
+        _p = _p->getPrev();
         return _buf;
     }
 
@@ -55,9 +55,10 @@ class linked_list {
 
     // список содержит
     bool has(list_node* node) {
-        list_iter iter(_last);
-        while (iter.next()) {
-            if (iter.get() == node) return true;
+        list_node* p = _last;
+        while (p) {
+            if (p == node) return true;
+            p = p->_prev;
         }
         return false;
     }
@@ -99,7 +100,12 @@ class linked_list {
         _last = nullptr;
     }
 
-   protected:
+    // получить последний элемент в списке
+    inline list_node* getLast() {
+        return _last;
+    }
+
+   private:
     list_node* _last = nullptr;
 };
 

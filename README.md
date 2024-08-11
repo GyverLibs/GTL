@@ -219,6 +219,9 @@ size_t length();
 
 // очистить список
 void clear();
+
+// получить последний элемент в списке
+list_node* getLast();
 ```
 
 <a id="versions"></a>

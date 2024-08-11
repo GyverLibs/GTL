@@ -33,6 +33,13 @@ void setup() {
         // и выводим значения
         Serial.println(p->i);
     }
+
+    // или так
+    gtl::list_node* node = list.getLast();
+    while (node) {
+        // node...
+        node = node->getPrev();
+    }
 }
 
 void loop() {
