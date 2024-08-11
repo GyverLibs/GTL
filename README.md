@@ -140,6 +140,12 @@ bool valid();
 // буфер существует
 explicit operator bool();
 
+// бинарный поиск в отсортированном стеке
+bsearch_t<T> searchSort(const T& val);
+
+// добавить с сортировкой. Флаг uniq - не добавлять если элемент уже есть
+bool addSort(const T& val, bool uniq = false);
+
 // ДЛЯ ДИНАМИЧЕСКИХ
 // зарезервировать память в кол-ве элементов
 bool reserve(size_t cap);
