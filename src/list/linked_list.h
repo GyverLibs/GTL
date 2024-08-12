@@ -38,14 +38,16 @@ class linked_list {
     }
 
     // добавить
-    void add(list_node& node) {
-        add(&node);
+    bool add(list_node& node) {
+        return add(&node);
     }
 
     // добавить
-    void add(list_node* node) {
+    bool add(list_node* node) {
+        if (!node) return false;
         node->_prev = _last;
         _last = node;
+        return true;
     }
 
     // список содержит

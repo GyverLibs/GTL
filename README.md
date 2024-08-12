@@ -197,10 +197,10 @@ T* buffer;
 list_iter iter();
 
 // добавить
-void add(list_node& node);
+bool add(list_node& node);
 
 // добавить
-void add(list_node* node);
+bool add(list_node* node);
 
 // удалить
 void remove(list_node& node);
