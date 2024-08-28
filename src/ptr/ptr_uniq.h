@@ -59,7 +59,7 @@ class ptr_uniq {
 
     // удалить
     void reset() {
-        if (_ptr) delete _ptr;
+        delete _ptr;
         _ptr = nullptr;
     }
 };
