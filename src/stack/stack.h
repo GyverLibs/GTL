@@ -1,7 +1,7 @@
 #pragma once
-#include "array/array_copy.h"
-#include "array/array_shared.h"
-#include "array/array_uniq.h"
+#include "../array/array_copy.h"
+#include "../array/array_shared.h"
+#include "../array/array_uniq.h"
 #include "stack_ext.h"
 
 namespace gtl {
