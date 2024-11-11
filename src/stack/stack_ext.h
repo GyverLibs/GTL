@@ -22,6 +22,7 @@ template <typename T>
 class stack_ext {
    public:
     stack_ext() {}
+
     stack_ext(T* arr, size_t capacity, size_t length = 0) {
         setBuffer(arr, capacity, length);
     }
@@ -186,6 +187,11 @@ class stack_ext {
         return _buf ? _len : 0;
     }
 
+    // текущий размер в байтах
+    size_t size() const {
+        return length() * sizeof(T);
+    }
+
     // установить количество элементов (само вызовет reserve)
     bool setLength(size_t len) {
         if (!_fit(_len + len)) return 0;
@@ -203,9 +209,9 @@ class stack_ext {
         return _buf ? _cap : 0;
     }
 
-    // текущий размер в байтах
-    size_t size() const {
-        return length() * sizeof(T);
+    // вместимость, байт
+    size_t capacityBytes() const {
+        return capacity() * sizeof(T);
     }
 
     // позиция элемента (-1 если не найден)
@@ -264,7 +270,7 @@ class stack_ext {
     T* _buf = nullptr;
     size_t _len = 0;
     size_t _cap = 0;
-    uint16_t _oversize = 16;
+    uint16_t _oversize = 8;
 
     inline bool _fit(size_t size) {
         return (size <= _cap || reserve(size + _oversize)) && _buf;
@@ -280,7 +286,7 @@ class stack_ext {
         return _fit(_cap + size);
     }
 
-    // установить увеличение размера для уменьшения количества мелких реаллокаций. Умолч. 16
+    // установить увеличение размера для уменьшения количества мелких реаллокаций. Умолч. 8
     void setOversize(uint16_t oversize) {
         _oversize = oversize;
     }
