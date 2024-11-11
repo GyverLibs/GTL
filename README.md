@@ -146,6 +146,9 @@ bsearch_t<T> searchSort(const T& val);
 // добавить с сортировкой. Флаг uniq - не добавлять если элемент уже есть
 bool addSort(const T& val, bool uniq = false);
 
+// установить увеличение размера для уменьшения количества мелких реаллокаций. Умолч. 16
+void setOversize(uint16_t oversize);
+
 // ДЛЯ ДИНАМИЧЕСКИХ
 // зарезервировать память в кол-ве элементов
 bool reserve(size_t cap);
