@@ -255,11 +255,6 @@ class stack_ext {
         return _buf;
     }
 
-    // установить увеличение размера для уменьшения количества мелких реаллокаций. Умолч. 16
-    void setOversize(uint16_t oversize) {
-        _oversize = oversize;
-    }
-
     //
     bool includes(const T& val) const __attribute__((deprecated)) {
         return has(val);
@@ -274,8 +269,20 @@ class stack_ext {
     inline bool _fit(size_t size) {
         return (size <= _cap || reserve(size + _oversize)) && _buf;
     }
+
+    // зарезервировать, элементов (установить новый размер буфера)
     virtual bool reserve(size_t size) {
         return 0;
+    }
+
+    // зарезервировать, элементов (добавить к текущему размеру буфера)
+    bool addCapacity(size_t size) {
+        return _fit(_cap + size);
+    }
+
+    // установить увеличение размера для уменьшения количества мелких реаллокаций. Умолч. 16
+    void setOversize(uint16_t oversize) {
+        _oversize = oversize;
     }
 };
 
