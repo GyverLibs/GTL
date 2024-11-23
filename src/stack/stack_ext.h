@@ -237,8 +237,9 @@ class stack_ext {
 
     // получить элемент под индексом. Отрицательный - с конца
     T& get(int idx) const {
-        if (idx < 0) return _buf[(idx + _len >= 0) ? (idx + _len) : 0];
-        return _buf[idx];
+        if (idx < 0) idx += _len;
+        if (idx < 0 || !_len) return _buf[0];
+        return ((size_t)idx < _len) ? _buf[idx] : _buf[_len - 1];
     }
 
     // получить элемент под индексом. Отрицательный - с конца
