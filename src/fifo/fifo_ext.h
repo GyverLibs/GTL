@@ -5,78 +5,74 @@
 namespace gtl {
 
 // FIFO External
-template <typename T>
+template <typename T, typename Ti = uint16_t>
 class fifo_ext {
    public:
-    fifo_ext(T* buf = nullptr, uint8_t capacity = 0) {
+    fifo_ext(T* buf = nullptr, Ti capacity = 0) {
         setBuffer(buf, capacity);
     }
 
     // подключить буфер
-    void setBuffer(T* buf, uint8_t capacity) {
+    void setBuffer(T* buf, Ti capacity) {
         buffer = buf;
         _cap = capacity;
     }
 
     // запись в буфер. Вернёт true при успешной записи
     bool write(const T& val) {
-        if (buffer) {
-            uint8_t next = _leap(_head);
-            if (next != _tail) {
-                buffer[_head] = val;
-                _head = next;
-                return 1;
-            }
+        if (_len < _cap) {
+            Ti i = _head + _len;
+            buffer[i >= _cap ? i - _cap : i] = val;
+            ++_len;
+            return true;
         }
-        return 0;
+        return false;
     }
 
     // буфер полон
     bool isFull() const {
-        return _leap(_head) == _tail;
+        return _len == _cap;
     }
 
     // буфер пуст
-    inline bool isEmpty() const {
-        return _head == _tail;
+    bool isEmpty() const {
+        return _len == 0;
     }
 
     // чтение из буфера
     T read() {
-        if (!buffer || isEmpty()) return T();
-        uint8_t t = _tail;
-        _tail = _leap(_tail);
-        return buffer[t];
+        Ti i = _head;
+        if (_len) {
+            _head = (_head + 1 >= _cap) ? 0 : (_head + 1);
+            --_len;
+        }
+        return buffer[i];
     }
 
     // возвращает крайнее значение без удаления из буфера
     T peek() {
-        return (!buffer || isEmpty()) ? T() : buffer[_tail];
+        return buffer[_head];
     }
 
     // количество непрочитанных элементов
-    uint8_t available() {
-        return buffer ? ((_head >= _tail) ? (_head - _tail) : (_cap + _head - _tail)) : 0;
+    size_t available() {
+        return _len;
     }
 
     // размер буфера
-    uint8_t size() const {
-        return (buffer && _cap) ? (_cap - 1) : 0;
+    size_t size() const {
+        return _cap;
     }
 
     // очистить
     void clear() {
-        _head = _tail = 0;
+        _len = 0;
     }
 
     T* buffer = nullptr;
 
    private:
-    uint8_t _cap = 0, _head = 0, _tail = 0;
-
-    inline uint8_t _leap(const uint8_t pos) const {
-        return (pos + 1) >= _cap ? 0 : (pos + 1);
-    }
+    Ti _cap = 0, _head = 0, _len = 0;
 };
 
 }  // namespace gtl
