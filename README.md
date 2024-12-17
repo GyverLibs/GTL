@@ -199,6 +199,46 @@ void clear();
 T* buffer;
 ```
 
+### gtl::lbuf_x
+Линейный буфер с переполнением и последовательным чтением
+- `lbuf_ext` - внешний буфер
+- `lbuf_static` - внутренний статический буфер
+
+```cpp
+// подключить буфер
+void setBuffer(T* buf, Ti capacity);
+
+// добавить в буфер
+void write(T val);
+
+// запись в буфер по номеру
+void write(size_t n, T val);
+
+// чтение из буфера по номеру
+T& read(size_t n);
+
+// чтение из буфера по номеру
+T& operator[](size_t n);
+
+// размер буфера
+size_t size();
+
+T* buffer = nullptr;
+```
+
+```cpp
+  lbuf_static<uint8_t, 8> buf;
+
+  for (int i = 0; i < 12; i++) {
+    buf.write(i);
+    for (int j = 0; j < 8; j++) {
+      Serial.print(buf.read(j));
+      Serial.print(',');
+    }
+    Serial.println();
+  }
+```
+
 ### gtl::linked_list
 Связанный список для создания динамического массива объектов в стеке. Смотри пример в examples
 ```cpp
