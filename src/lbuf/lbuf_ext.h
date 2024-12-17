@@ -39,6 +39,11 @@ class lbuf_ext {
         return read(n);
     }
 
+    // позиция первого (левого) элемента
+    Ti getHead() {
+        return _head;
+    }
+
     // размер буфера
     size_t size() {
         return _cap;
