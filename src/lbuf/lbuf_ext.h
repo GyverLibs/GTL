@@ -49,6 +49,11 @@ class lbuf_ext {
         return _cap;
     }
 
+    // "очистить" буфер
+    void clear() {
+        _head = 0;
+    }
+
     T* buffer = nullptr;
 
    private:
