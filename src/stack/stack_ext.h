@@ -142,7 +142,7 @@ class stack_ext {
         return concat(st._buf, st._len);
     }
 
-    // прибавить другой массив в конец
+    // прибавить другой массив того же типа в конец
     bool concat(const T* buf, size_t len, bool pgm = false) {
         if (!len) return 1;
         if (!buf || !_fit(_len + len)) return 0;
@@ -156,9 +156,14 @@ class stack_ext {
         return 1;
     }
 
-    // прибавить другой массив в конец, синоним concat
-    size_t write(const T* buf, size_t len) {
-        return concat(buf, len, false) ? len : 0;
+    // прибавить бинарные данные
+    size_t write(const void* buf, size_t len, bool pgm = false) {
+        if (!len || !buf || !_fit(_len + len)) return 0;
+
+        if (pgm) memcpy_P((void*)(_buf + _len), buf, len);
+        else memcpy((void*)(_buf + _len), buf, len);
+        _len += len;
+        return len;
     }
 
     // прибавить другой массив в конец

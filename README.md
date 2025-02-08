@@ -92,6 +92,9 @@ bool concat(const T* buf, size_t len, bool pgm = false);
 // прибавить другой массив в конец
 bool operator+=(const stack_ext& st);
 
+// прибавить бинарные данные
+size_t write(const void* buf, size_t len, bool pgm = false);
+
 // заполнить значением (на capacity)
 void fill(const T& val);
 
