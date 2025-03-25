@@ -125,9 +125,9 @@ class stack_ext {
     // бинарный поиск в отсортированном стеке
     bsearch_t<T> searchSort(const T& val) {
         if (!length()) return bsearch_t<T>{0, nullptr};
-        int low = 0, high = length() - 1;
+        int mid, low = 0, high = length() - 1;
         while (low <= high) {
-            int mid = low + ((high - low) >> 1);
+            mid = low + ((high - low) >> 1);
             if (_buf[mid] == val) return bsearch_t<T>{mid, &_buf[mid]};
             if (_buf[mid] < val) low = mid + 1;
             else high = mid - 1;
@@ -139,6 +139,11 @@ class stack_ext {
     bool addSort(const T& val, bool uniq = false) {
         bsearch_t<T> pos = searchSort(val);
         if (uniq && pos) return 0;
+        return insert(pos.idx, val);
+    }
+
+    // добавить с сортировкой в bsearch_t из searchSort
+    bool addSort(const T& val, bsearch_t<T>& pos) {
         return insert(pos.idx, val);
     }
 
