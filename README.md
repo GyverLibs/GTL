@@ -55,8 +55,21 @@ void reset();
 - `stack_uniq` - динамический буфер с семантикой `array_uniq`
 
 ```cpp
+// экспортировать в файл
+bool writeToFile(FS& fs, const char* path);
+
+// импортировать из файла
+bool readFromFile(FS& fs, const char* path);
+
+// экспортировать в Stream (напр. файл)
+bool writeTo(TS& stream);
+
+// импортировать из Stream (напр. файл)
+bool readFrom(TS& stream);
+
 // добавить в конец
 bool push(const T& val);
+bool push(...);
 
 // добавить в конец
 bool operator+=(const T& val);

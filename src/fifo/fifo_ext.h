@@ -40,7 +40,7 @@ class fifo_ext {
     }
 
     // чтение из буфера
-    T read() {
+    T& read() {
         Ti i = _head;
         if (_len) {
             _head = (_head + 1 >= _cap) ? 0 : (_head + 1);
@@ -50,12 +50,27 @@ class fifo_ext {
     }
 
     // возвращает крайнее значение без удаления из буфера
-    T peek() {
+    T& peek() const {
         return buffer[_head];
     }
 
+    // получить по индексу от начала
+    T& get(Ti i) const {
+        return buffer[(_head + i >= _cap) ? (_head + i - _cap) : (_head + i)];
+    }
+
+    // получить по индексу от начала
+    T& operator[](Ti i) const {
+        return get(i);
+    }
+
+    // получить последний
+    T& getLast() const {
+        return get(_len ? _len - 1 : 0);
+    }
+
     // количество непрочитанных элементов
-    size_t available() {
+    size_t available() const {
         return _len;
     }
 

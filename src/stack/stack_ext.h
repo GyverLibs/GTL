@@ -27,6 +27,43 @@ class stack_ext {
         setBuffer(arr, capacity, length);
     }
 
+    // экспортировать в файл
+    template <typename FS>
+    bool writeToFile(FS& fs, const char* path) {
+        auto f = fs.open(path, "w");
+        return f ? writeTo(f) : false;
+    }
+
+    // импортировать из файла
+    template <typename FS>
+    bool readFromFile(FS& fs, const char* path) {
+        auto f = fs.open(path, "r");
+        return f ? readFrom(f) : false;
+    }
+
+    // экспортировать в Stream (напр. файл)
+    template <typename TS>
+    bool writeTo(TS& stream) {
+        return stream.write((uint8_t*)_buf, size()) == size();
+    }
+
+    // импортировать из Stream (напр. файл)
+    template <typename TS>
+    bool readFrom(TS& stream) {
+        clear();
+        while (stream.available()) {
+            size_t rlen = stream.available() / sizeof(T);
+            if (!rlen ||
+                !_fit(_len + rlen) ||
+                stream.readBytes((char*)(_buf + _len), rlen * sizeof(T)) != rlen * sizeof(T)) {
+                clear();
+                return false;
+            }
+            _len += rlen;
+        }
+        return true;
+    }
+
     // подключить буфер
     void setBuffer(T* arr, size_t capacity, size_t length = 0) {
         _buf = arr;
@@ -39,6 +76,12 @@ class stack_ext {
         if (!_fit(_len + 1)) return 0;
         _buf[_len++] = val;
         return 1;
+    }
+
+    // добавить в конец
+    template <typename... Args>
+    void push(const Args&... args) {
+        (push(args), ...);
     }
 
     // добавить в конец
@@ -59,7 +102,7 @@ class stack_ext {
     // добавить в начало
     bool shift(const T& val) {
         if (!_fit(_len + 1)) return 0;
-        memmove((void*)(_buf + 1), (const void*)(_buf), _len * sizeof(T));
+        memmove((void*)(_buf + 1), (const void*)(_buf), size());
         _buf[0] = val;
         _len++;
         return 1;
@@ -70,7 +113,7 @@ class stack_ext {
         if (!length()) return T();
         T t = _buf[0];
         _len--;
-        memmove((void*)(_buf), (const void*)(_buf + 1), _len * sizeof(T));
+        memmove((void*)(_buf), (const void*)(_buf + 1), size());
         return t;
     }
 
