@@ -78,11 +78,13 @@ class stack_ext {
         return 1;
     }
 
+#if __cplusplus >= 201703L
     // добавить в конец
     template <typename... Args>
     void pushList(const Args&... args) {
         (push(args), ...);
     }
+#endif
 
     // добавить в конец
     bool operator+=(const T& val) {
