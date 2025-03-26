@@ -10,7 +10,7 @@ void setup() {
     // запись в файл
     gtl::stack_uniq<int> st;
     st.push(1);
-    st.push(2, 3, 4);
+    st.pushList(2, 3, 4);
 
     for (int i = 0; i < st.length(); i++) {
         Serial.print(st[i]);
