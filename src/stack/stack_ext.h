@@ -95,8 +95,13 @@ class stack_ext {
     }
 
     // прочитать с конца не удаляя
-    T& peek() const {
+    T& last() const {
         return _buf[_len - 1];
+    }
+
+    // прочитать с начала не удаляя
+    T& first() const {
+        return _buf[0];
     }
 
     // добавить в начало
@@ -115,11 +120,6 @@ class stack_ext {
         _len--;
         memmove((void*)(_buf), (const void*)(_buf + 1), size());
         return t;
-    }
-
-    // прочитать с начала не удаляя
-    T& unpeek() const {
-        return _buf[0];
     }
 
     // бинарный поиск в отсортированном стеке
@@ -318,6 +318,12 @@ class stack_ext {
     //
     bool includes(const T& val) const __attribute__((deprecated)) {
         return has(val);
+    }
+    T& peek() const {
+        return last();
+    }
+    T& unpeek() const {
+        return first();
     }
 
    protected:

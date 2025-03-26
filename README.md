@@ -78,7 +78,7 @@ bool operator+=(const T& val);
 T pop();
 
 // прочитать с конца не удаляя
-T& peek();
+T& last();
 
 // добавить в начало
 bool shift(const T& val);
@@ -87,7 +87,7 @@ bool shift(const T& val);
 T unshift();
 
 // прочитать с начала не удаляя
-T& unpeek();
+T& first();
 
 // удалить элемент. Отрицательный - с конца
 bool remove(int idx);
