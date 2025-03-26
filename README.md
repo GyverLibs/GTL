@@ -69,7 +69,7 @@ bool readFrom(TS& stream);
 
 // добавить в конец
 bool push(const T& val);
-bool push(...);
+bool pushList(...);
 
 // добавить в конец
 bool operator+=(const T& val);

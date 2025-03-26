@@ -79,8 +79,7 @@ class stack_ext {
     }
 
     // добавить в конец
-    template <typename... Args>
-    void push(const Args&... args) {
+    void pushList(const T&... args) {
         (push(args), ...);
     }
 
