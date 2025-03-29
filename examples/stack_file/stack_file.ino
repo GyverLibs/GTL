@@ -18,12 +18,12 @@ void setup() {
     }
     Serial.println();
 
-    st.writeToFile(LittleFS, "stack.st");
+    st.writeToFile(LittleFS, "/stack.st");
 
     // чтение из файла в другой стек
     gtl::stack_uniq<int> st2;
 
-    st2.readFromFile(LittleFS, "stack.st");
+    st2.readFromFile(LittleFS, "/stack.st");
     for (int i = 0; i < st2.length(); i++) {
         Serial.print(st2[i]);
         Serial.print(',');
