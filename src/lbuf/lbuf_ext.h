@@ -30,27 +30,28 @@ class lbuf_ext {
     }
 
     // чтение из буфера по номеру
-    T& read(size_t n) {
-        return buffer[_i(n)];
+    T& read(size_t n) const {
+        size_t i = _head + n;
+        return buffer[i >= _cap ? i - _cap : i];
     }
 
     // чтение из буфера по номеру
-    T& operator[](size_t n) {
+    inline T& operator[](size_t n) const {
         return read(n);
     }
 
     // позиция первого (левого) элемента
-    Ti getHead() {
+    inline Ti getHead() const {
         return _head;
     }
 
     // размер буфера
-    size_t size() {
+    inline size_t size() const {
         return _cap;
     }
 
     // "очистить" буфер
-    void clear() {
+    inline void clear() {
         _head = 0;
     }
 
@@ -58,11 +59,6 @@ class lbuf_ext {
 
    private:
     Ti _cap = 0, _head = 0;
-
-    inline size_t _i(size_t num) {
-        size_t i = num + _head;
-        return i >= _cap ? i - _cap : i;
-    }
 };
 
 }  // namespace gtl

@@ -1,7 +1,5 @@
 #pragma once
-#include "./array/array_copy.h"
-#include "./array/array_shared.h"
-#include "./array/array_uniq.h"
+#include "./array/array.h"
 #include "./fifo/fifo_ext.h"
 #include "./fifo/fifo_static.h"
 #include "./lbuf/lbuf_ext.h"
@@ -12,3 +10,4 @@
 #include "./stack/stack.h"
 #include "./stack/stack_ext.h"
 #include "./stack/stack_static.h"
+#include "./utils.h"

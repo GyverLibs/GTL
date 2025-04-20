@@ -30,12 +30,12 @@ class fifo_ext {
     }
 
     // буфер полон
-    bool isFull() const {
+    inline bool isFull() const {
         return _len == _cap;
     }
 
     // буфер пуст
-    bool isEmpty() const {
+    inline bool isEmpty() const {
         return _len == 0;
     }
 
@@ -50,7 +50,7 @@ class fifo_ext {
     }
 
     // возвращает крайнее значение без удаления из буфера
-    T& peek() const {
+    inline T& peek() const {
         return buffer[_head];
     }
 
@@ -60,7 +60,7 @@ class fifo_ext {
     }
 
     // получить по индексу от начала
-    T& operator[](Ti i) const {
+    inline T& operator[](Ti i) const {
         return get(i);
     }
 
@@ -70,17 +70,17 @@ class fifo_ext {
     }
 
     // количество непрочитанных элементов
-    size_t available() const {
+    inline size_t available() const {
         return _len;
     }
 
     // размер буфера
-    size_t size() const {
+    inline size_t size() const {
         return _cap;
     }
 
     // очистить
-    void clear() {
+    inline void clear() {
         _len = 0;
     }
 

@@ -1,17 +1,21 @@
 #pragma once
-#include "stack_ext.h"
+#include "stack.h"
 
 namespace gtl {
 
 // Static Stack
 template <typename T, size_t size>
-class stack_static : public stack_ext<T> {
+class stack_static : public stackT<T, array_static<T>> {
+    typedef stackT<T, array_static<T>> ST;
+
    public:
-    stack_static() : stack_ext<T>(_buffer, size) {}
+    stack_static() {
+        ST::_buf = _buffer;
+        ST::_size = size;
+    }
 
    private:
-    using stack_ext<T>::setBuffer;
     T _buffer[size];
 };
 
-}  // namespace gtl
+}
