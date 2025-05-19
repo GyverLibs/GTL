@@ -70,7 +70,7 @@ class fifo_ext {
     }
 
     // количество непрочитанных элементов
-    inline size_t available() const {
+    inline size_t length() const {
         return _len;
     }
 
@@ -85,6 +85,10 @@ class fifo_ext {
     }
 
     T* buffer = nullptr;
+
+    inline size_t available() const {
+        return _len;
+    }
 
    private:
     Ti _cap = 0, _head = 0, _len = 0;

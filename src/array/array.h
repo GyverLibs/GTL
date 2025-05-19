@@ -76,7 +76,7 @@ class array : public array_static<T> {
 
     // изменить размер в количестве элементов T
     bool resize(uint16_t size) {
-        if (_size >= size) return true;
+        if (_size == size) return true;
 
         T* buf = (T*)realloc(_buf, size * sizeof(T));
         if (!buf) return false;

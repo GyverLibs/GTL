@@ -60,10 +60,10 @@ class stackT : protected AR {
 
     // добавить в конец
     bool push(const T& val) {
-        if (!_fit(_len + 1)) return 0;
+        if (!_fit(_len + 1)) return false;
 
         _buf[_len++] = val;
-        return 1;
+        return true;
     }
 
 #if __cplusplus >= 201703L || defined(STACK_USE_FOLD)
@@ -96,12 +96,12 @@ class stackT : protected AR {
 
     // добавить в начало
     bool shift(const T& val) {
-        if (!_fit(_len + 1)) return 0;
+        if (!_fit(_len + 1)) return false;
 
         memmove((void*)(_buf + 1), (const void*)(_buf), size());
         _buf[0] = val;
         ++_len;
-        return 1;
+        return true;
     }
 
     // получить с начала и удалить
@@ -131,7 +131,7 @@ class stackT : protected AR {
     // добавить с сортировкой. Флаг uniq - не добавлять если элемент уже есть
     bool addSort(const T& val, bool uniq = false) {
         bsearch_t<T> pos = searchSort(val);
-        if (uniq && pos) return 0;
+        if (uniq && pos) return false;
 
         return insert(pos.idx, val);
     }
@@ -143,77 +143,76 @@ class stackT : protected AR {
 
     // удалить элемент. Отрицательный - с конца
     bool remove(int idx) {
-        if (!length() || idx >= (int)_len || idx < -(int)_len) return 0;
+        if (!length() || idx >= (int)_len || idx < -(int)_len) return false;
 
         if (idx < 0) idx += _len;
         memcpy((void*)(_buf + idx), (const void*)(_buf + idx + 1), (_len - idx - 1) * sizeof(T));
         --_len;
-        return 1;
+        return true;
     }
 
     // удалить несколько элементов, начиная с индекса
     bool remove(uint16_t from, uint16_t amount) {
-        if (!length() || !amount || from >= _len) return 0;
+        if (!length() || !amount || from >= _len) return false;
 
         uint16_t to = from + amount;
         if (to >= _len - 1) {
             _len = from;
-            return 1;
+            return true;
         }
         memmove((void*)(_buf + from), (const void*)(_buf + to), (_len - to) * sizeof(T));
         _len -= amount;
-        return 1;
+        return true;
     }
 
     // вставить элемент на индекс (отрицательный индекс - с конца, слишком большой - будет push)
     bool insert(int idx, const T& val) {
         if (idx < 0) idx += _len;
-        if (idx < 0) return 0;
+        if (idx < 0) return false;
 
         if (idx == 0) return shift(val);
         else if (idx >= (int)_len) return push(val);
 
-        if (!_fit(_len + 1)) return 0;
+        if (!_fit(_len + 1)) return false;
 
         memmove((void*)(_buf + idx + 1), (const void*)(_buf + idx), (_len - idx) * sizeof(T));
         _buf[idx] = val;
         ++_len;
-        return 1;
-    }
-
-    // прибавить другой массив в конец
-    bool concat(const stackT& st) {
-        return concat(st._buf, st._len);
+        return true;
     }
 
     // прибавить другой массив того же типа в конец
-    bool concat(const T* buf, size_t len, bool pgm = false) {
-        if (!len) return 1;
-
-        if (!buf || !_fit(_len + len)) return 0;
-
-        if (pgm) {
-            memcpy_P((void*)(_buf + _len), (const void*)(buf), len * sizeof(T));
-        } else {
-            memcpy((void*)(_buf + _len), (const void*)(buf), len * sizeof(T));
-        }
-        _len += len;
-        return 1;
-    }
-
-    // прибавить бинарные данные
-    size_t write(const void* buf, size_t len, bool pgm = false) {
-        if (!len || !buf || !_fit(_len + len)) return 0;
-
-        if (pgm) memcpy_P((void*)(_buf + _len), buf, len);
-        else memcpy((void*)(_buf + _len), buf, len);
-        _len += len;
-        return len;
+    bool concat(const stackT& st) {
+        return concat(st._buf, st._len);
     }
 
     // прибавить другой массив в конец
     inline bool operator+=(const stackT& st) {
         return concat(st);
+    }
+
+    // прибавить другой массив того же типа в конец
+    bool concat(const T* buf, size_t len, bool pgm = false) {
+        if (!len) return true;
+        if (!buf || !_fit(_len + len)) return false;
+
+        if (pgm) memcpy_P((void*)(_buf + _len), (const void*)(buf), len * sizeof(T));
+        else memcpy((void*)(_buf + _len), (const void*)(buf), len * sizeof(T));
+
+        _len += len;
+        return true;
+    }
+
+    // прибавить бинарные данные, вернёт количество записанных байт
+    size_t write(const void* buf, size_t len, bool pgm = false) {
+        size_t wlen = (len + sizeof(T) - 1) / sizeof(T);
+        if (!len || !buf || !_fit(_len + wlen)) return 0;
+
+        if (pgm) memcpy_P((void*)(_buf + _len), buf, len);
+        else memcpy((void*)(_buf + _len), buf, len);
+
+        _len += wlen;
+        return len;
     }
 
     // заполнить значением (на capacity)
@@ -244,10 +243,10 @@ class stackT : protected AR {
 
     // установить количество элементов (само вызовет reserve)
     bool setLength(uint16_t len) {
-        if (!_fit(_len + len)) return 0;
+        if (!_fit(_len + len)) return false;
 
         _len = len;
-        return 1;
+        return true;
     }
 
     // есть место для добавления
@@ -291,6 +290,11 @@ class stackT : protected AR {
         return ((size_t)idx < _len) ? _buf[idx] : _buf[_len - 1];
     }
 
+    // получить элемент под индексом без проверок
+    inline T& _get(int idx) const {
+        return _buf[idx];
+    }
+
     // получить элемент под индексом. Отрицательный - с конца
     inline T& operator[](int idx) const {
         return get(idx);
@@ -328,16 +332,21 @@ class stackT : protected AR {
 
     // зарезервировать, элементов (установить новый размер буфера)
     inline bool reserve(uint16_t size) {
-        return AR::resize(size);
+        return _size < size ? AR::resize(size) : true;
+    }
+
+    // освободить незанятое зарезервированное место
+    inline void shrink() {
+        AR::resize(_len);
     }
 
     // зарезервировать, элементов (добавить к текущему размеру буфера)
-    bool addCapacity(uint16_t size) {
+    inline bool addCapacity(uint16_t size) {
         return _fit(_size + size);
     }
 
     // установить увеличение размера для уменьшения количества мелких реаллокаций. Умолч. 8
-    void setOversize(uint16_t oversize) {
+    inline void setOversize(uint16_t oversize) {
         _oversize = oversize;
     }
 
@@ -356,6 +365,7 @@ class stack : public stackT<T, array<T>> {
     using ST::addCapacity;
     using ST::reserve;
     using ST::setOversize;
+    using ST::shrink;
 
     // освободить память
     void reset() {
