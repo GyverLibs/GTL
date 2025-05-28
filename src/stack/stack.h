@@ -66,7 +66,7 @@ class stackT : protected AR {
         return true;
     }
 
-#if __cplusplus >= 201703L || defined(STACK_USE_FOLD)
+#if __cplusplus >= 201703L || defined(STACK_USE_FOLD) || defined(ESP32)
     // добавить в конец
     template <typename... Args>
     void pushList(const Args&... args) {
