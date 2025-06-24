@@ -2,6 +2,8 @@
 #include <inttypes.h>
 #include <stddef.h>
 
+#include "../utils.h"
+
 namespace gtl {
 
 template <typename T>
@@ -15,25 +17,25 @@ class ptr_uniq {
     explicit ptr_uniq(T* ptr) : _ptr(ptr) {}
 
     ptr_uniq(ptr_uniq& val) {
-        move(val);
+        swap(_ptr, val._ptr);
     }
     ptr_uniq& operator=(ptr_uniq& val) {
-        move(val);
+        swap(_ptr, val._ptr);
         return *this;
     }
 
 #if __cplusplus >= 201103L
     ptr_uniq(ptr_uniq&& rval) noexcept {
-        move(rval);
+        swap(_ptr, rval._ptr);
     }
     ptr_uniq& operator=(ptr_uniq&& rval) noexcept {
-        move(rval);
+        swap(_ptr, rval._ptr);
         return *this;
     }
 #endif
 
     ~ptr_uniq() {
-        reset();
+        delete _ptr;
     }
 
     T* get() const {
@@ -51,10 +53,7 @@ class ptr_uniq {
 
     // переместить из другого экземпляра
     void move(ptr_uniq& val) noexcept {
-        if (this == &val) return;
-        reset();
-        _ptr = val._ptr;
-        val._ptr = nullptr;
+        swap(_ptr, val._ptr);
     }
 
     // удалить
