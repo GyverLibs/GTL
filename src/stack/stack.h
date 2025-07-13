@@ -70,7 +70,7 @@ class stackT : protected AR {
     // добавить в конец
     template <typename... Args>
     void pushList(const Args&... args) {
-        (push(args), ...);
+        (void)(push(args), ...);
     }
 #endif
 

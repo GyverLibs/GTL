@@ -13,6 +13,9 @@ class array_static {
     uint16_t _size = 0;
 
    public:
+    array_static() {}
+    array_static(T* buf, uint16_t size) : _buf(buf), _size(size) {}
+
     inline T* buf() const {
         return _buf;
     }
