@@ -66,6 +66,11 @@ class stackT : protected AR {
         return true;
     }
 
+    // добавить, если нет элемента с таким значением
+    bool pushUniq(const T& val) {
+        return has(val) ? false : push(val);
+    }
+
 #if __cplusplus >= 201703L || defined(STACK_USE_FOLD) || defined(ESP32)
     // добавить в конец
     template <typename... Args>

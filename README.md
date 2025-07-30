@@ -84,6 +84,9 @@ bool readFrom(TS& stream);
 bool push(const T& val);
 bool pushList(...);
 
+// добавить, если нет элемента с таким значением
+bool pushUniq(const T& val);
+
 // добавить в конец
 bool operator+=(const T& val);
 
