@@ -55,17 +55,24 @@ class fifo_ext {
     }
 
     // получить по индексу от начала
-    T& get(Ti i) const {
-        return buffer[(_head + i >= _cap) ? (_head + i - _cap) : (_head + i)];
+    T& get(int i) const {
+        if (i < 0) i += _len;
+        i += _head;
+        return buffer[Ti(i) >= _cap ? i - _cap : i];
     }
 
     // получить по индексу от начала
-    inline T& operator[](Ti i) const {
+    inline T& operator[](int i) const {
         return get(i);
     }
 
+    // получить первый
+    inline T& first() const {
+        return get(0);
+    }
+
     // получить последний
-    T& getLast() const {
+    inline T& last() const {
         return get(_len ? _len - 1 : 0);
     }
 
@@ -86,9 +93,9 @@ class fifo_ext {
 
     T* buffer = nullptr;
 
-    inline size_t available() const {
-        return _len;
-    }
+    /////////////////////
+    T& getLast() const { return get(_len ? _len - 1 : 0); }
+    inline size_t available() const { return _len; }
 
    private:
     Ti _cap = 0, _head = 0, _len = 0;

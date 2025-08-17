@@ -30,14 +30,15 @@ class lbuf_ext {
     }
 
     // чтение из буфера по номеру
-    T& read(size_t n) const {
-        size_t i = _head + n;
-        return buffer[i >= _cap ? i - _cap : i];
+    T& read(int i) const {
+        if (i < 0) i += _cap;
+        i += _head;
+        return buffer[Ti(i) >= _cap ? i - _cap : i];
     }
 
     // чтение из буфера по номеру
-    inline T& operator[](size_t n) const {
-        return read(n);
+    inline T& operator[](int i) const {
+        return read(i);
     }
 
     // позиция первого (левого) элемента
