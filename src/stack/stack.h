@@ -246,6 +246,11 @@ class stackT : protected AR {
         return length() * sizeof(T);
     }
 
+    // осталось свободного места, элементов
+    uint16_t left() const {
+        return _buf ? AR::size() - _len : 0;
+    }
+
     // установить количество элементов (само вызовет reserve)
     bool setLength(uint16_t len) {
         if (!_fit(_len + len)) return false;
