@@ -10,7 +10,8 @@ class list_iter {
     list_iter(list_node* last) : _p(last) {}
 
     list_node* next() {
-        _idx++;
+        if (!_p) return nullptr;
+        ++_idx;
         _buf = _p;
         _p = _p->getPrev();
         return _buf;
@@ -34,7 +35,7 @@ class linked_list {
    public:
     // получить итератор
     list_iter iter() {
-        return _last;
+        return list_iter(_last);
     }
 
     // добавить
@@ -44,7 +45,7 @@ class linked_list {
 
     // добавить
     bool add(list_node* node) {
-        if (!node) return false;
+        if (!node || has(node)) return false;
         node->_prev = _last;
         _last = node;
         return true;
@@ -66,25 +67,27 @@ class linked_list {
     }
 
     // удалить
-    void remove(list_node& node) {
-        remove(&node);
+    bool remove(list_node& node) {
+        return remove(&node);
     }
 
     // удалить
-    void remove(list_node* node) {
-        if (!node) return;
+    bool remove(list_node* node) {
+        if (!node) return false;
         if (_last == node) {
             _last = _last->_prev;
+            return true;
         } else {
             list_node* p = _last;
             while (p) {
                 if (p->_prev == node) {
                     p->_prev = p->_prev->_prev;
-                    break;
+                    return true;
                 }
                 p = p->_prev;
             }
         }
+        return false;
     }
 
     // длина списка
