@@ -23,12 +23,12 @@ class array_static {
         return _buf;
     }
 
-    // размер в кол-ве элементов
+    // вместимость в кол-ве элементов
     inline uint16_t size() const {
         return _size;
     }
 
-    // размер в байтах
+    // вместимость в байтах
     inline size_t sizeBytes() const {
         return _size * sizeof(T);
     }
@@ -38,7 +38,7 @@ class array_static {
         memset(_buf, 0, sizeBytes());
     }
 
-    // изменить размер в количестве элементов T
+    // изменить вместимость в количестве элементов T
     bool resize(uint16_t size) {
         return _size >= size;
     }
@@ -77,7 +77,7 @@ class array : public array_static<T> {
         free(_buf);
     }
 
-    // изменить размер в количестве элементов T
+    // изменить вместимость в количестве элементов T
     bool resize(uint16_t size) {
         if (_size == size) return true;
 

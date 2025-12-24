@@ -26,19 +26,19 @@ class lbuf_ext {
 
     // запись в буфер по номеру
     void write(size_t n, T val) {
-        read(n) = val;
+        get(n) = val;
     }
 
-    // чтение из буфера по номеру
-    T& read(int i) const {
+    // чтение из буфера по номеру. Отрицательный - с конца
+    T& get(int i) {
+        return (i >= int(_cap) || i < -int(_cap)) ? buffer[0] : (*this)[i];
+    }
+
+    // получить по индексу от начала без проверок. Отрицательный - с конца
+    T& operator[](int i) {
         if (i < 0) i += _cap;
         i += _head;
-        return buffer[Ti(i) >= _cap ? i - _cap : i];
-    }
-
-    // чтение из буфера по номеру
-    inline T& operator[](int i) const {
-        return read(i);
+        return buffer[(i >= int(_cap)) ? i - _cap : i];
     }
 
     // позиция первого (левого) элемента
@@ -57,6 +57,11 @@ class lbuf_ext {
     }
 
     T* buffer = nullptr;
+
+    // legacy
+    T& read(int i) {
+        return get(i);
+    }
 
    private:
     Ti _cap = 0, _head = 0;

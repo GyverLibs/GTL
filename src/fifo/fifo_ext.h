@@ -50,29 +50,29 @@ class fifo_ext {
     }
 
     // возвращает крайнее значение без удаления из буфера
-    inline T& peek() const {
+    inline T& peek() {
         return buffer[_head];
     }
 
-    // получить по индексу от начала
-    T& get(int i) const {
-        if (i < 0) i += _len;
-        i += _head;
-        return buffer[Ti(i) >= _cap ? i - _cap : i];
+    // получить по индексу от начала. Отрицательный - с конца
+    T& get(int i) {
+        return (i >= int(_len) || i < -int(_len)) ? buffer[0] : (*this)[i];
     }
 
-    // получить по индексу от начала
-    inline T& operator[](int i) const {
-        return get(i);
+    // получить по индексу от начала без проверок. Отрицательный - с конца
+    T& operator[](int i) {
+        if (i < 0) i += _len;
+        i += _head;
+        return buffer[(i >= int(_cap)) ? i - _cap : i];
     }
 
     // получить первый
-    inline T& first() const {
+    inline T& first() {
         return get(0);
     }
 
     // получить последний
-    inline T& last() const {
+    inline T& last() {
         return get(_len ? _len - 1 : 0);
     }
 
@@ -94,7 +94,7 @@ class fifo_ext {
     T* buffer = nullptr;
 
     /////////////////////
-    T& getLast() const { return get(_len ? _len - 1 : 0); }
+    T& getLast() { return get(_len ? _len - 1 : 0); }
     inline size_t available() const { return _len; }
 
    private:

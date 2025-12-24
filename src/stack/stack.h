@@ -49,7 +49,7 @@ class stackT : protected AR {
             size_t rlen = stream.available() / sizeof(T);
             if (!rlen ||
                 !_fit(_len + rlen) ||
-                stream.readBytes((char*)(_buf + _len), rlen * sizeof(T)) != rlen * sizeof(T)) {
+                stream.readBytes((char*)end(), rlen * sizeof(T)) != rlen * sizeof(T)) {
                 clear();
                 return false;
             }
@@ -66,18 +66,17 @@ class stackT : protected AR {
         return true;
     }
 
+    // добавить в конец
+    template <typename First, typename... Rest>
+    bool push(const First& first, const Rest&... rest) {
+        if (!push(first)) return false;
+        return push(rest...);
+    }
+
     // добавить, если нет элемента с таким значением
     bool pushUniq(const T& val) {
         return has(val) ? false : push(val);
     }
-
-#if __cplusplus >= 201703L || defined(STACK_USE_FOLD) || defined(ESP32)
-    // добавить в конец
-    template <typename... Args>
-    void pushList(const Args&... args) {
-        (void)(push(args), ...);
-    }
-#endif
 
     // добавить в конец
     inline bool operator+=(const T& val) {
@@ -86,16 +85,16 @@ class stackT : protected AR {
 
     // получить с конца и удалить
     T& pop() {
-        return _buf[length() ? --_len : 0];
+        return _buf[_len ? --_len : 0];
     }
 
     // прочитать с конца не удаляя
-    T& last() const {
-        return _buf[length() ? _len - 1 : 0];
+    T& last() {
+        return _buf[_len ? _len - 1 : 0];
     }
 
     // прочитать с начала не удаляя
-    inline T& first() const {
+    inline T& first() {
         return _buf[0];
     }
 
@@ -111,7 +110,7 @@ class stackT : protected AR {
 
     // получить с начала и удалить
     T unshift() {
-        if (!length()) return T();
+        if (!_len) return T();
 
         T t = _buf[0];
         --_len;
@@ -121,9 +120,9 @@ class stackT : protected AR {
 
     // бинарный поиск в отсортированном стеке
     bsearch_t<T> searchSort(const T& val) {
-        if (!length()) return bsearch_t<T>{0, nullptr};
+        if (!_len) return bsearch_t<T>{0, nullptr};
 
-        int mid, low = 0, high = length() - 1;
+        int mid, low = 0, high = _len - 1;
         while (low <= high) {
             mid = low + ((high - low) >> 1);
             if (_buf[mid] == val) return bsearch_t<T>{mid, &_buf[mid]};
@@ -148,7 +147,7 @@ class stackT : protected AR {
 
     // удалить элемент. Отрицательный - с конца
     bool remove(int idx) {
-        if (!length() || idx >= (int)_len || idx < -(int)_len) return false;
+        if (!_len || idx >= (int)_len || idx < -(int)_len) return false;
 
         if (idx < 0) idx += _len;
         memcpy((void*)(_buf + idx), (const void*)(_buf + idx + 1), (_len - idx - 1) * sizeof(T));
@@ -158,7 +157,7 @@ class stackT : protected AR {
 
     // удалить несколько элементов, начиная с индекса
     bool remove(uint16_t from, uint16_t amount) {
-        if (!length() || !amount || from >= _len) return false;
+        if (!_len || !amount || from >= _len) return false;
 
         uint16_t to = from + amount;
         if (to >= _len - 1) {
@@ -201,8 +200,8 @@ class stackT : protected AR {
         if (!len) return true;
         if (!buf || !_fit(_len + len)) return false;
 
-        if (pgm) memcpy_P((void*)(_buf + _len), (const void*)(buf), len * sizeof(T));
-        else memcpy((void*)(_buf + _len), (const void*)(buf), len * sizeof(T));
+        if (pgm) memcpy_P((void*)end(), (const void*)(buf), len * sizeof(T));
+        else memcpy((void*)end(), (const void*)(buf), len * sizeof(T));
 
         _len += len;
         return true;
@@ -213,8 +212,8 @@ class stackT : protected AR {
         size_t wlen = (len + sizeof(T) - 1) / sizeof(T);
         if (!len || !buf || !_fit(_len + wlen)) return 0;
 
-        if (pgm) memcpy_P((void*)(_buf + _len), buf, len);
-        else memcpy((void*)(_buf + _len), buf, len);
+        if (pgm) memcpy_P((void*)end(), buf, len);
+        else memcpy((void*)end(), buf, len);
 
         _len += wlen;
         return len;
@@ -238,17 +237,17 @@ class stackT : protected AR {
 
     // количество элементов
     inline uint16_t length() const {
-        return _buf ? _len : 0;
+        return _len;
     }
 
     // текущий размер в байтах
     size_t size() const {
-        return length() * sizeof(T);
+        return _len * sizeof(T);
     }
 
     // осталось свободного места, элементов
     uint16_t left() const {
-        return _buf ? AR::size() - _len : 0;
+        return AR::size() - _len;
     }
 
     // установить количество элементов (само вызовет reserve)
@@ -261,7 +260,7 @@ class stackT : protected AR {
 
     // есть место для добавления
     bool canAdd() const {
-        return _buf ? (_len < _size) : 0;
+        return _len < _size;
     }
 
     // вместимость, элементов
@@ -276,7 +275,7 @@ class stackT : protected AR {
 
     // позиция элемента (-1 если не найден)
     int indexOf(const T& val) const {
-        for (size_t i = 0; i < length(); i++) {
+        for (size_t i = 0; i < _len; i++) {
             if (_buf[i] == val) return i;
         }
         return -1;
@@ -294,20 +293,13 @@ class stackT : protected AR {
     }
 
     // получить элемент под индексом. Отрицательный - с конца
-    T& get(int idx) const {
-        if (idx < 0) idx += _len;
-        if (idx < 0 || !_len) return _buf[0];
-        return ((size_t)idx < _len) ? _buf[idx] : _buf[_len - 1];
+    T& get(int i) {
+        return (i >= int(_len) || i < -int(_len)) ? _buf[0] : (*this)[i];
     }
 
-    // получить элемент под индексом без проверок
-    inline T& _get(int idx) const {
-        return _buf[idx];
-    }
-
-    // получить элемент под индексом. Отрицательный - с конца
-    inline T& operator[](int idx) const {
-        return get(idx);
+    // получить элемент под индексом без проверок. Отрицательный - с конца
+    inline T& operator[](int i) {
+        return _buf[i < 0 ? i + int(_len) : i];
     }
 
     // буфер существует
@@ -323,15 +315,28 @@ class stackT : protected AR {
     // буфер
     using AR::buf;
 
+    // указатель на элемент, следующий за последним
+    inline T* end() const {
+        return _buf + _len;
+    }
+
     // legacy
     bool includes(const T& val) const __attribute__((deprecated)) {
         return has(val);
     }
-    T& peek() const {
+    T& peek() __attribute__((deprecated)) {
         return last();
     }
-    T& unpeek() const {
+    T& unpeek() __attribute__((deprecated)) {
         return first();
+    }
+    template <typename First, typename... Rest>
+    bool pushList(const First& first, const Rest&... rest) __attribute__((deprecated)) {
+        if (!push(first)) return false;
+        return push(rest...);
+    }
+    T& _get(int idx) {
+        return _buf[idx];
     }
 
    protected:
