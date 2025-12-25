@@ -72,6 +72,9 @@ class stackT : protected AR {
         if (!push(first)) return false;
         return push(rest...);
     }
+    bool push() {
+        return true;
+    }
 
     // добавить, если нет элемента с таким значением
     bool pushUniq(const T& val) {
@@ -329,11 +332,6 @@ class stackT : protected AR {
     }
     T& unpeek() __attribute__((deprecated)) {
         return first();
-    }
-    template <typename First, typename... Rest>
-    bool pushList(const First& first, const Rest&... rest) __attribute__((deprecated)) {
-        if (!push(first)) return false;
-        return push(rest...);
     }
     T& _get(int idx) {
         return _buf[idx];
