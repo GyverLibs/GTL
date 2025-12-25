@@ -67,8 +67,8 @@ class stackT : protected AR {
     }
 
     // добавить в конец
-    template <typename First, typename... Rest>
-    bool push(const First& first, const Rest&... rest) {
+    template <typename... Rest>
+    bool push(const T& first, const Rest&... rest) {
         if (!push(first)) return false;
         return push(rest...);
     }
