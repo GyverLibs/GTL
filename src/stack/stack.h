@@ -297,11 +297,17 @@ class stackT : protected AR {
 
     // получить элемент под индексом. Отрицательный - с конца
     T& get(int i) {
+        return const_cast<T&>(static_cast<const stackT&>(*this).get(i));
+    }
+    const T& get(int i) const {
         return (i >= int(_len) || i < -int(_len)) ? _buf[0] : (*this)[i];
     }
 
     // получить элемент под индексом без проверок. Отрицательный - с конца
-    inline T& operator[](int i) {
+    T& operator[](int i) {
+        return const_cast<T&>(static_cast<const stackT&>(*this)[i]);
+    }
+    const T& operator[](int i) const {
         return _buf[i < 0 ? i + int(_len) : i];
     }
 
@@ -334,6 +340,9 @@ class stackT : protected AR {
         return first();
     }
     T& _get(int idx) {
+        return _buf[idx];
+    }
+    const T& _get(int idx) const {
         return _buf[idx];
     }
 
