@@ -406,6 +406,11 @@ class stack : public stackT<T, array<T>> {
         ST::_len = 0;
     }
 
+    // есть место для добавления
+    bool canAdd() const {
+        return true;
+    }
+
     stack() {}
 
     stack(const stack& st) : ST(st) {}
