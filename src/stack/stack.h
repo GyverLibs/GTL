@@ -125,7 +125,7 @@ class stackT : protected AR {
     bsearch_t<T> searchSort(const T& val) {
         if (!_len) return bsearch_t<T>{0, nullptr};
 
-        int mid, low = 0, high = _len - 1;
+        size_t mid, low = 0, high = _len - 1;
         while (low <= high) {
             mid = low + ((high - low) >> 1);
             if (_buf[mid] == val) return bsearch_t<T>{mid, &_buf[mid]};
@@ -159,11 +159,11 @@ class stackT : protected AR {
     }
 
     // удалить несколько элементов, начиная с индекса
-    bool remove(uint16_t from, uint16_t amount) {
+    bool remove(size_t from, size_t amount) {
         if (!_len || !amount || from >= _len) return false;
 
-        uint16_t to = from + amount;
-        if (to >= _len - 1) {
+        size_t to = from + amount;
+        if (to >= _len) {
             _len = from;
             return true;
         }
@@ -178,7 +178,7 @@ class stackT : protected AR {
         if (idx < 0) return false;
 
         if (idx == 0) return shift(val);
-        else if (idx >= (int)_len) return push(val);
+        else if (size_t(idx) >= _len) return push(val);
 
         if (!_fit(_len + 1)) return false;
 
@@ -203,8 +203,11 @@ class stackT : protected AR {
         if (!len) return true;
         if (!buf || !_fit(_len + len)) return false;
 
+#ifdef ARDUINO
         if (pgm) memcpy_P((void*)end(), (const void*)(buf), len * sizeof(T));
-        else memcpy((void*)end(), (const void*)(buf), len * sizeof(T));
+        else
+#endif
+            memcpy((void*)end(), (const void*)(buf), len * sizeof(T));
 
         _len += len;
         return true;
@@ -215,8 +218,11 @@ class stackT : protected AR {
         size_t wlen = (len + sizeof(T) - 1) / sizeof(T);
         if (!len || !buf || !_fit(_len + wlen)) return 0;
 
+#ifdef ARDUINO
         if (pgm) memcpy_P((void*)end(), buf, len);
-        else memcpy((void*)end(), buf, len);
+        else
+#endif
+            memcpy((void*)end(), buf, len);
 
         _len += wlen;
         return len;
@@ -239,7 +245,7 @@ class stackT : protected AR {
     }
 
     // количество элементов
-    inline uint16_t length() const {
+    inline size_t length() const {
         return _len;
     }
 
@@ -249,16 +255,21 @@ class stackT : protected AR {
     }
 
     // осталось свободного места, элементов
-    uint16_t left() const {
+    size_t left() const {
         return AR::size() - _len;
     }
 
     // установить количество элементов (само вызовет reserve)
-    bool setLength(uint16_t len) {
-        if (!_fit(_len + len)) return false;
+    bool setLength(size_t len) {
+        if (!_fit(len)) return false;
 
         _len = len;
         return true;
+    }
+
+    // добавить количество элементов (само вызовет reserve)
+    bool addLength(size_t len) {
+        return setLength(_len + len);
     }
 
     // есть место для добавления
@@ -267,7 +278,7 @@ class stackT : protected AR {
     }
 
     // вместимость, элементов
-    inline uint16_t capacity() const {
+    inline size_t capacity() const {
         return AR::size();
     }
 
@@ -349,12 +360,12 @@ class stackT : protected AR {
    protected:
     using AR::_buf;
     using AR::_size;
-    uint16_t _len = 0;
-    uint16_t _oversize = 8;
+    size_t _len = 0;
+    uint8_t _oversize = 8;
 
     // зарезервировать, элементов (установить новый размер буфера)
-    inline bool reserve(uint16_t size) {
-        return _size < size ? AR::resize(size) : true;
+    inline bool reserve(size_t nsize) {
+        return AR::resize(nsize > _size ? nsize : _size);
     }
 
     // освободить незанятое зарезервированное место
@@ -363,18 +374,18 @@ class stackT : protected AR {
     }
 
     // зарезервировать, элементов (добавить к текущему размеру буфера)
-    inline bool addCapacity(uint16_t size) {
-        return _fit(_size + size);
+    inline bool addCapacity(size_t nsize) {
+        return _fit(_size + nsize);
     }
 
     // установить увеличение размера для уменьшения количества мелких реаллокаций. Умолч. 8
-    inline void setOversize(uint16_t oversize) {
+    inline void setOversize(uint8_t oversize) {
         _oversize = oversize;
     }
 
    private:
-    bool _fit(uint16_t size) {
-        return (size <= _size || reserve(size + _oversize)) && _buf;
+    bool _fit(size_t nsize) {
+        return nsize <= _size || AR::resize(nsize + _oversize);
     }
 };
 

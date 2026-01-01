@@ -15,8 +15,7 @@ class ptr_shared {
 
    public:
     explicit ptr_shared(T* ptr) {
-        _data = new shared_data;
-        if (_data) _data->ptr = ptr;
+        _data = new shared_data{ptr, 1};
     }
 
     ptr_shared(const ptr_shared& val) {
@@ -29,10 +28,16 @@ class ptr_shared {
 
 #if __cplusplus >= 201103L
     ptr_shared(ptr_shared&& rval) noexcept {
-        share(rval);
+        _data = rval._data;
+        rval._data = nullptr;
     }
+
     ptr_shared& operator=(ptr_shared&& rval) noexcept {
-        share(rval);
+        if (this != &rval) {
+            release();
+            _data = rval._data;
+            rval._data = nullptr;
+        }
         return *this;
     }
 #endif
@@ -58,20 +63,10 @@ class ptr_shared {
     }
 
     void share(const ptr_shared& val) noexcept {
-        if (this == &val) return;
-        if (_data == val._data) return;
-
-        if (_data) {
+        if (_data != val._data) {
             release();
             _data = val._data;
             if (_data) _data->count++;
-        } else {
-            if (val._data) {
-                _data = val._data;
-                _data->count++;
-            } else {
-                // ==> _data == val._data
-            }
         }
     }
 

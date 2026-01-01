@@ -10,11 +10,11 @@ template <typename T>
 class array_static {
    protected:
     T* _buf = nullptr;
-    uint16_t _size = 0;
+    size_t _size = 0;
 
    public:
     array_static() {}
-    array_static(T* buf, uint16_t size) : _buf(buf), _size(size) {}
+    array_static(T* buf, size_t size) : _buf(buf), _size(size) {}
 
     inline T* buf() const {
         return _buf;
@@ -24,7 +24,7 @@ class array_static {
     }
 
     // вместимость в кол-ве элементов
-    inline uint16_t size() const {
+    inline size_t size() const {
         return _size;
     }
 
@@ -39,7 +39,7 @@ class array_static {
     }
 
     // изменить вместимость в количестве элементов T
-    bool resize(uint16_t size) {
+    bool resize(size_t size) {
         return _size >= size;
     }
 };
@@ -56,7 +56,7 @@ class array : public array_static<T> {
 
     array() {}
 
-    array(uint16_t size) {
+    array(size_t size) {
         resize(size);
     }
 
@@ -78,13 +78,13 @@ class array : public array_static<T> {
     }
 
     // изменить вместимость в количестве элементов T
-    bool resize(uint16_t size) {
+    bool resize(size_t size) {
         if (_size == size) return true;
 
-        T* buf = (T*)realloc(_buf, size * sizeof(T));
+        void* buf = realloc(_buf, size * sizeof(T));
         if (!buf) return false;
 
-        _buf = buf;
+        _buf = (T*)buf;
         _size = size;
         return true;
     }
