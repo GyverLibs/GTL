@@ -12,8 +12,8 @@ struct bsearch_t {
     T* ptr;
 
     // данные найдены
-    explicit operator bool() {
-        return ptr;
+    explicit operator bool() const {
+        return ptr != nullptr;
     }
 };
 
