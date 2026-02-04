@@ -5,15 +5,22 @@ namespace gtl {
 
 template <typename T>
 struct bsearch_t {
-    // индекс в стеке
-    int idx;
+    // индекс в стеке. Если ptr == nullptr - позиция для вставки
+    size_t idx;
 
-    // указатель на данные, если найдены
+    // указатель на данные в стеке, не найдены - nullptr
     T* ptr;
 
     // данные найдены
     explicit operator bool() const {
         return ptr != nullptr;
+    }
+
+    operator T*() {
+        return ptr;
+    }
+    operator const T*() const {
+        return ptr;
     }
 };
 
@@ -123,16 +130,15 @@ class stackT : protected AR {
 
     // бинарный поиск в отсортированном стеке
     bsearch_t<T> searchSort(const T& val) {
-        if (!_len) return bsearch_t<T>{0, nullptr};
+        size_t low = 0, high = _len;
 
-        size_t mid, low = 0, high = _len - 1;
-        while (low <= high) {
-            mid = low + ((high - low) >> 1);
-            if (_buf[mid] == val) return bsearch_t<T>{mid, &_buf[mid]};
+        while (low < high) {
+            size_t mid = low + ((high - low) >> 1);
             if (_buf[mid] < val) low = mid + 1;
-            else high = mid - 1;
+            else high = mid;
         }
-        return bsearch_t<T>{low, nullptr};
+
+        return {low, (low < _len && _buf[low] == val) ? &_buf[low] : nullptr};
     }
 
     // добавить с сортировкой. Флаг uniq - не добавлять если элемент уже есть
@@ -146,6 +152,25 @@ class stackT : protected AR {
     // добавить с сортировкой в bsearch_t из searchSort
     bool addSort(const T& val, bsearch_t<T>& pos) {
         return insert(pos.idx, val);
+    }
+
+    // сортировать стек
+    void sort() {
+        for (size_t i = 1; i < _len; ++i) {
+            T key = _buf[i];
+            int j = i - 1;
+
+            while (j >= 0 && _buf[j] > key) {
+                _buf[j + 1] = _buf[j];
+                --j;
+            }
+
+            _buf[j + 1] = key;
+        }
+    }
+
+    bool remove(const bsearch_t<T>& pos) {
+        return pos ? remove(pos.idx) : false;
     }
 
     // удалить элемент. Отрицательный - с конца
@@ -320,6 +345,11 @@ class stackT : protected AR {
     }
     const T& operator[](int i) const {
         return _buf[i < 0 ? i + int(_len) : i];
+    }
+
+    // итерировать все элементы
+    void loop(void (*cb)(T& el)) const {
+        for (size_t i = 0; i < _len; i++) cb(_buf[i]);
     }
 
     // буфер существует
