@@ -225,7 +225,6 @@ class stackT : protected AR {
 
     // прибавить другой массив того же типа в конец
     bool concat(const T* buf, size_t len, bool pgm = false) {
-        if (!len) return true;
         if (!buf || !_fit(_len + len)) return false;
 
 #ifdef ARDUINO
