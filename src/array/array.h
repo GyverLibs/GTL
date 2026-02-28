@@ -39,8 +39,8 @@ class array_static {
     }
 
     // изменить вместимость в количестве элементов T
-    bool resize(size_t size) {
-        return _size >= size;
+    bool resize(size_t len) {
+        return _size >= len;
     }
 };
 
@@ -78,14 +78,14 @@ class array : public array_static<T> {
     }
 
     // изменить вместимость в количестве элементов T
-    bool resize(size_t size) {
-        if (_size == size) return true;
+    bool resize(size_t len) {
+        if (_size == len) return true;
 
-        void* buf = realloc(_buf, size * sizeof(T));
+        void* buf = realloc(_buf, len * sizeof(T));
         if (!buf) return false;
 
         _buf = (T*)buf;
-        _size = size;
+        _size = len;
         return true;
     }
 
