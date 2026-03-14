@@ -27,7 +27,44 @@ struct bsearch_t {
 // Base Stack
 template <typename T, typename AR>
 class stackT : protected AR {
+    class Iter {
+        T* p;
+
+       public:
+        Iter(T* ptr) : p(ptr) {}
+
+        T& operator*() const {
+            return *p;
+        }
+
+        operator T*() const {
+            return p;
+        }
+
+        Iter& operator++() {
+            ++p;
+            return *this;
+        }
+
+        bool operator!=(const Iter& other) const {
+            return p != other.p;
+        }
+    };
+
    public:
+    Iter begin() {
+        return Iter(_buf);
+    }
+
+    Iter end() {
+        return Iter(_buf + _len);
+    }
+
+    // указатель на элемент, следующий за последним
+    // inline T* end() const {
+    //     return _buf + _len;
+    // }
+
     // экспортировать в файл
     template <typename FS>
     bool writeToFile(FS& fs, const char* path) {
@@ -343,6 +380,13 @@ class stackT : protected AR {
         return const_cast<T&>(static_cast<const stackT&>(*this)[i]);
     }
     const T& operator[](int i) const {
+        return at(i);
+    }
+
+    T& at(int i) {
+        return const_cast<T&>(at(i));
+    }
+    const T& at(int i) const {
         return _buf[i < 0 ? i + int(_len) : i];
     }
 
@@ -363,11 +407,6 @@ class stackT : protected AR {
 
     // буфер
     using AR::buf;
-
-    // указатель на элемент, следующий за последним
-    inline T* end() const {
-        return _buf + _len;
-    }
 
     // legacy
     bool includes(const T& val) const __attribute__((deprecated)) {
