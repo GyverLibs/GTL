@@ -16,41 +16,74 @@ class fifo_ext {
     void setBuffer(T* buf, Ti capacity) {
         buffer = buf;
         _cap = capacity;
+        clear();
     }
+
+    // очистить
+    void clear() {
+        _len = 0;
+    }
+
+    // ============ WRITE ============
 
     // запись в буфер. Вернёт true при успешной записи
     bool write(const T& val) {
-        if (_len < _cap) {
-            Ti i = _head + _len;
-            buffer[i >= _cap ? i - _cap : i] = val;
-            ++_len;
-            return true;
-        }
-        return false;
+        if (_len == _cap) return false;
+
+        Ti i = _head + _len;
+        buffer[i >= _cap ? i - _cap : i] = val;
+        ++_len;
+        return true;
     }
 
-    // буфер полон
-    inline bool isFull() const {
-        return _len == _cap;
+    // запись в буфер. Вернёт количество записанных элементов
+    Ti write(const T* vals, Ti len) {
+        if (len > canWrite()) len = canWrite();
+
+        Ti i = _head + _len;
+        if (i >= _cap) i -= _cap;
+
+        Ti left = _cap - i;
+        if (left > len) left = len;
+
+        memcpy(buffer + i, vals, left * sizeof(T));
+        memcpy(buffer, vals + left, (len - left) * sizeof(T));
+
+        _len += len;
+        return len;
     }
 
-    // буфер пуст
-    inline bool isEmpty() const {
-        return _len == 0;
-    }
+    // ============ READ ============
 
     // чтение из буфера
     T& read() {
         Ti i = _head;
         if (_len) {
-            _head = (_head + 1 >= _cap) ? 0 : (_head + 1);
+            if (++_head >= _cap) _head = 0;
             --_len;
         }
         return buffer[i];
     }
 
+    // чтение из буфера. Вернёт количество прочитанных элементов
+    Ti read(T* vals, Ti len) {
+        if (len > _len) len = _len;
+
+        Ti left = _cap - _head;
+        if (left > len) left = len;
+
+        memcpy(vals, buffer + _head, left * sizeof(T));
+        memcpy(vals + left, buffer, (len - left) * sizeof(T));
+
+        _head += len;
+        if (_head >= _cap) _head -= _cap;
+
+        _len -= len;
+        return len;
+    }
+
     // возвращает крайнее значение без удаления из буфера
-    inline T& peek() {
+    T& peek() {
         return buffer[_head];
     }
 
@@ -63,39 +96,52 @@ class fifo_ext {
     T& operator[](int i) {
         if (i < 0) i += _len;
         i += _head;
-        return buffer[(i >= int(_cap)) ? i - _cap : i];
+        if (i >= int(_cap)) i -= _cap;
+        return buffer[i];
     }
 
     // получить первый
-    inline T& first() {
-        return get(0);
+    T& first() {
+        return (*this)[0];
     }
 
     // получить последний
-    inline T& last() {
-        return get(_len ? _len - 1 : 0);
+    T& last() {
+        return (*this)[_len ? _len - 1 : 0];
+    }
+
+    // ============ STATUS ============
+
+    // буфер полон
+    bool isFull() const {
+        return _len == _cap;
+    }
+
+    // буфер пуст
+    bool isEmpty() const {
+        return _len == 0;
     }
 
     // количество непрочитанных элементов
-    inline size_t length() const {
+    Ti length() const {
         return _len;
     }
 
-    // размер буфера
-    inline size_t size() const {
-        return _cap;
+    // свободных ячеек для записи
+    Ti canWrite() const {
+        return _cap - _len;
     }
 
-    // очистить
-    inline void clear() {
-        _len = 0;
+    // размер буфера
+    Ti size() const {
+        return _cap;
     }
 
     T* buffer = nullptr;
 
     /////////////////////
     T& getLast() { return get(_len ? _len - 1 : 0); }
-    inline size_t available() const { return _len; }
+    size_t available() const { return _len; }
 
    private:
     Ti _cap = 0, _head = 0, _len = 0;
