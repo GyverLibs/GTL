@@ -1,6 +1,7 @@
 #pragma once
 #include <inttypes.h>
 #include <stddef.h>
+#include <string.h>
 
 namespace gtl {
 
@@ -16,7 +17,8 @@ class fifo_ext {
     void setBuffer(T* buf, Ti capacity) {
         buffer = buf;
         _cap = capacity;
-        clear();
+        _head = 0;
+        _len = 0;
     }
 
     // очистить
@@ -37,17 +39,19 @@ class fifo_ext {
     }
 
     // запись в буфер. Вернёт количество записанных элементов
-    Ti write(const T* vals, Ti len) {
+    Ti write(const T* buf, Ti len) {
         if (len > canWrite()) len = canWrite();
 
-        Ti i = _head + _len;
+        size_t i = size_t(_head) + size_t(_len);
         if (i >= _cap) i -= _cap;
 
         Ti left = _cap - i;
         if (left > len) left = len;
 
-        memcpy(buffer + i, vals, left * sizeof(T));
-        memcpy(buffer, vals + left, (len - left) * sizeof(T));
+        if (buf) {
+            memcpy(buffer + i, buf, left * sizeof(T));
+            memcpy(buffer, buf + left, (len - left) * sizeof(T));
+        }
 
         _len += len;
         return len;
@@ -66,14 +70,16 @@ class fifo_ext {
     }
 
     // чтение из буфера. Вернёт количество прочитанных элементов
-    Ti read(T* vals, Ti len) {
+    Ti read(T* buf, Ti len) {
         if (len > _len) len = _len;
 
         Ti left = _cap - _head;
         if (left > len) left = len;
 
-        memcpy(vals, buffer + _head, left * sizeof(T));
-        memcpy(vals + left, buffer, (len - left) * sizeof(T));
+        if (buf) {
+            memcpy(buf, buffer + _head, left * sizeof(T));
+            memcpy(buf + left, buffer, (len - left) * sizeof(T));
+        }
 
         _head += len;
         if (_head >= _cap) _head -= _cap;
@@ -82,9 +88,29 @@ class fifo_ext {
         return len;
     }
 
+    // убрать из буфера, вернёт количество
+    Ti consume(Ti len) {
+        return read(nullptr, len);
+    }
+
+    // ============ PEEK ============
+
     // возвращает крайнее значение без удаления из буфера
     T& peek() {
         return buffer[_head];
+    }
+
+    // получить указатель на непрерывный участок для чтения
+    T* peekBuffer() {
+        return _len ? buffer + _head : nullptr;
+    }
+
+    // получить длину непрерывного участка для чтения
+    Ti peekLength() const {
+        if (!_len) return 0;
+
+        Ti left = _cap - _head;
+        return left < _len ? left : _len;
     }
 
     // получить по индексу от начала. Отрицательный - с конца
