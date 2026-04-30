@@ -5,8 +5,8 @@ namespace gtl {
 
 // Static Stack
 template <typename T, size_t size>
-class stack_static : public stackT<T, array_static<T>> {
-    typedef stackT<T, array_static<T>> ST;
+class stack_static : public stackT<T, array_ext<T>> {
+    typedef stackT<T, array_ext<T>> ST;
 
    public:
     stack_static() {

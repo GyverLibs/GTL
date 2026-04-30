@@ -17,12 +17,12 @@ class fifo_ext {
     void setBuffer(T* buf, Ti capacity) {
         buffer = buf;
         _cap = capacity;
-        _head = 0;
-        _len = 0;
+        clear();
     }
 
     // очистить
     void clear() {
+        _head = 0;
         _len = 0;
     }
 
@@ -93,6 +93,32 @@ class fifo_ext {
         return read(nullptr, len);
     }
 
+    // ============ PREPEND ============
+
+    // вписать один элемент в начало. Вернёт true при успехе
+    bool prepend(const T& val) {
+        if (_len == _cap) return false;
+
+        _head = _head ? (_head - 1) : (_cap - 1);
+        buffer[_head] = val;
+        ++_len;
+
+        return true;
+    }
+
+    // вписать блок в начало. Вернёт количество вписанных элементов
+    Ti prepend(const T* buf, Ti len) {
+        if (len > canWrite()) len = canWrite();
+
+        for (Ti i = 0; i < len; i++) {
+            _head = _head ? (_head - 1) : (_cap - 1);
+            if (buf) buffer[_head] = buf[len - 1 - i];
+        }
+
+        _len += len;
+        return len;
+    }
+
     // ============ PEEK ============
 
     // возвращает крайнее значение без удаления из буфера
@@ -161,6 +187,16 @@ class fifo_ext {
     // размер буфера
     Ti size() const {
         return _cap;
+    }
+
+    // начало буфера
+    T* data() {
+        return buffer;
+    }
+
+    // начало буфера
+    const T* data() const {
+        return buffer;
     }
 
     T* buffer = nullptr;

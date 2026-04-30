@@ -1,58 +1,17 @@
 #pragma once
-#include <inttypes.h>
-#include <stddef.h>
-
-#include "../utils.h"
+#include "array_ext.h"
 
 namespace gtl {
 
 template <typename T>
-class array_static {
+class array : public array_ext<T> {
    protected:
-    T* _buf = nullptr;
-    size_t _size = 0;
+    using array_ext<T>::_buf;
+    using array_ext<T>::_size;
 
    public:
-    array_static() {}
-    array_static(T* buf, size_t size) : _buf(buf), _size(size) {}
-
-    inline T* buf() const {
-        return _buf;
-    }
-    inline operator T*() const {
-        return _buf;
-    }
-
-    // вместимость в кол-ве элементов
-    inline size_t size() const {
-        return _size;
-    }
-
-    // вместимость в байтах
-    inline size_t sizeBytes() const {
-        return _size * sizeof(T);
-    }
-
-    // очистить (заполнить нулями)
-    void clear() {
-        memset(_buf, 0, sizeBytes());
-    }
-
-    // изменить вместимость в количестве элементов T
-    bool resize(size_t len) {
-        return _size >= len;
-    }
-};
-
-template <typename T>
-class array : public array_static<T> {
-   protected:
-    using array_static<T>::_buf;
-    using array_static<T>::_size;
-
-   public:
-    using array_static<T>::buf;
-    using array_static<T>::sizeBytes;
+    using array_ext<T>::buf;
+    using array_ext<T>::sizeBytes;
 
     array() {}
 
