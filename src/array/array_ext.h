@@ -24,6 +24,12 @@ class array_ext {
     inline const T* buf() const {
         return _buf;
     }
+    inline T* data() {
+        return _buf;
+    }
+    inline const T* data() const {
+        return _buf;
+    }
     operator T*() {
         return _buf;
     }

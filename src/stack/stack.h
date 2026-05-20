@@ -27,43 +27,30 @@ struct bsearch_t {
 // Base Stack
 template <typename T, typename AR>
 class stackT : protected AR {
-    class Iter {
-        T* p;
-
-       public:
-        Iter(T* ptr) : p(ptr) {}
-
-        T& operator*() const {
-            return *p;
-        }
-
-        operator T*() const {
-            return p;
-        }
-
-        Iter& operator++() {
-            ++p;
-            return *this;
-        }
-
-        bool operator!=(const Iter& other) const {
-            return p != other.p;
-        }
-    };
-
    public:
-    Iter begin() {
-        return Iter(_buf);
+    T* begin() {
+        return _buf;
     }
 
-    Iter end() {
-        return Iter(_buf + _len);
+    T* end() {
+        return _buf + _len;
     }
 
-    // указатель на элемент, следующий за последним
-    // inline T* end() const {
-    //     return _buf + _len;
-    // }
+    const T* begin() const {
+        return _buf;
+    }
+
+    const T* end() const {
+        return _buf + _len;
+    }
+
+    const T* cbegin() const {
+        return begin();
+    }
+
+    const T* cend() const {
+        return end();
+    }
 
     // экспортировать в файл
     template <typename FS>
@@ -195,19 +182,24 @@ class stackT : protected AR {
     void sort() {
         for (size_t i = 1; i < _len; ++i) {
             T key = _buf[i];
-            int j = i - 1;
+            size_t j = i;
 
-            while (j >= 0 && _buf[j] > key) {
-                _buf[j + 1] = _buf[j];
+            while (j > 0 && _buf[j - 1] > key) {
+                _buf[j] = _buf[j - 1];
                 --j;
             }
 
-            _buf[j + 1] = key;
+            _buf[j] = key;
         }
     }
 
-    bool remove(const bsearch_t<T>& pos) {
-        return pos ? remove(pos.idx) : false;
+    // удалить элемент по индексу
+    bool remove(size_t idx) {
+        if (!_len || idx >= _len) return false;
+
+        memmove((void*)(_buf + idx), (const void*)(_buf + idx + 1), (_len - idx - 1) * sizeof(T));
+        --_len;
+        return true;
     }
 
     // удалить элемент. Отрицательный - с конца
@@ -215,32 +207,33 @@ class stackT : protected AR {
         if (!_len || idx >= (int)_len || idx < -(int)_len) return false;
 
         if (idx < 0) idx += _len;
-        memcpy((void*)(_buf + idx), (const void*)(_buf + idx + 1), (_len - idx - 1) * sizeof(T));
-        --_len;
-        return true;
+        return remove((size_t)idx);
+    }
+
+    // удалить по позиции поиска
+    bool remove(const bsearch_t<T>& pos) {
+        return pos ? remove(pos.idx) : false;
     }
 
     // удалить несколько элементов, начиная с индекса
     bool remove(size_t from, size_t amount) {
         if (!_len || !amount || from >= _len) return false;
 
-        size_t to = from + amount;
-        if (to >= _len) {
+        if (amount >= _len - from) {
             _len = from;
             return true;
         }
+
+        size_t to = from + amount;
         memmove((void*)(_buf + from), (const void*)(_buf + to), (_len - to) * sizeof(T));
         _len -= amount;
         return true;
     }
 
-    // вставить элемент на индекс (отрицательный индекс - с конца, слишком большой - будет push)
-    bool insert(int idx, const T& val) {
-        if (idx < 0) idx += _len;
-        if (idx < 0) return false;
-
+    // вставить элемент на индекс (слишком большой - будет push)
+    bool insert(size_t idx, const T& val) {
         if (idx == 0) return shift(val);
-        else if (size_t(idx) >= _len) return push(val);
+        else if (idx >= _len) return push(val);
 
         if (!_fit(_len + 1)) return false;
 
@@ -248,6 +241,13 @@ class stackT : protected AR {
         _buf[idx] = val;
         ++_len;
         return true;
+    }
+
+    // вставить элемент на индекс (отрицательный индекс - с конца, слишком большой - будет push)
+    bool insert(int idx, const T& val) {
+        if (idx < 0) idx += _len;
+        if (idx < 0) return false;
+        return insert((size_t)idx, val);
     }
 
     // прибавить другой массив того же типа в конец
@@ -276,8 +276,14 @@ class stackT : protected AR {
 
     // прибавить бинарные данные, вернёт количество записанных байт
     size_t write(const void* buf, size_t len, bool pgm = false) {
+        if (!len || !buf) return 0;
+
+        if (len == sizeof(T) && !pgm) {
+            return push(*(const T*)buf) ? len : 0;
+        }
+
         size_t wlen = (len + sizeof(T) - 1) / sizeof(T);
-        if (!len || !buf || !_fit(_len + wlen)) return 0;
+        if (!_fit(_len + wlen)) return 0;
 
 #ifdef ARDUINO
         if (pgm) memcpy_P((void*)end(), buf, len);
@@ -391,7 +397,11 @@ class stackT : protected AR {
     }
 
     // итерировать все элементы
-    void loop(void (*cb)(T& el)) const {
+    void loop(void (*cb)(T& el)) {
+        for (size_t i = 0; i < _len; i++) cb(_buf[i]);
+    }
+
+    void loop(void (*cb)(const T& el)) const {
         for (size_t i = 0; i < _len; i++) cb(_buf[i]);
     }
 
