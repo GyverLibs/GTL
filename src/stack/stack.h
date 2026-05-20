@@ -442,8 +442,8 @@ class stackT : protected AR {
     uint8_t _oversize = 8;
 
     // зарезервировать, элементов (установить новый размер буфера)
-    inline bool reserve(size_t len) {
-        return AR::resize(len > _size ? len : _size);
+    inline bool reserve(size_t nsize) {
+        return nsize > _size ? AR::resize(nsize) : true;
     }
 
     // освободить незанятое зарезервированное место
@@ -451,9 +451,9 @@ class stackT : protected AR {
         AR::resize(_len);
     }
 
-    // зарезервировать, элементов (добавить к текущему размеру буфера)
-    inline bool addCapacity(size_t len) {
-        return _fit(_size + len);
+    // зарезервировать, элементов (добавить к текущей длине)
+    inline bool addCapacity(size_t add) {
+        return _fit(_len + add);
     }
 
     // установить увеличение размера для уменьшения количества мелких реаллокаций. Умолч. 8
@@ -462,8 +462,8 @@ class stackT : protected AR {
     }
 
    private:
-    bool _fit(size_t len) {
-        return len <= _size || AR::resize(len + _oversize);
+    bool _fit(size_t nsize) {
+        return nsize <= _size || AR::resize(nsize + _oversize);
     }
 };
 
