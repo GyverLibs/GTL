@@ -1,206 +1,396 @@
-This is an automatic translation, may be incorrect in some places. See sources and examples!
+This is an automatic translation and may be incorrect in some places. See the source README and examples for authoritative information.
+
+[![latest](https://img.shields.io/github/v/release/GyverLibs/GTL.svg?color=brightgreen)](https://github.com/GyverLibs/GTL/releases/latest/download/GTL.zip)
+[![PIO](https://badges.registry.platformio.org/packages/gyverlibs/library/GTL.svg)](https://registry.platformio.org/libraries/gyverlibs/GTL)
+[![Foo](https://img.shields.io/badge/Website-AlexGyver.ru-blue.svg?style=flat-square)](https://alexgyver.ru/)
+[![Foo](https://img.shields.io/badge/%E2%82%BD%24%E2%82%AC%20%D0%9F%D0%BE%D0%B4%D0%B4%D0%B5%D1%80%D0%B6%D0%B0%D1%82%D1%8C-%D0%B0%D0%B2%D1%82%D0%BE%D1%80%D0%B0-orange.svg?style=flat-square)](https://alexgyver.ru/support_alex/)
+[![Foo](https://img.shields.io/badge/README-ENGLISH-blueviolet.svg?style=flat-square)](https://github-com.translate.goog/GyverLibs/GTL?_x_tr_sl=ru&_x_tr_tl=en)  
+
+[![Foo](https://img.shields.io/badge/ПОДПИСАТЬСЯ-НА%20ОБНОВЛЕНИЯ-brightgreen.svg?style=social&logo=telegram&color=blue)](https://t.me/GyverLibs)
 
 # Gyver Template Library
 A set of template tools
-- smart signs
+- Smart pointers
 - Dynamic arrays
 - Buffers
+- Related list
 
-## compatibility
-Compatible with all arduino platforms (used arduino functions)
+### Compatibility
+Compatible with all Arduino platforms (Arduino features are used)
 
-## Content
-- [use] (#usage)
-- [versions] (#varsions)
-- [installation] (# Install)
-- [bugs and feedback] (#fedback)
+## Contents
+- [Use of use](#usage)
+- [Versions](#versions)
+- [Installation](#install)
+- [Bugs and feedback](#feedback)
 
-<a id="usage"> </a>
+<a id="usage"></a>
 
-## Usage
-## gtl :: Array_x
-Dynamic array.It has three behavior models when transferring from one object to another:
-- `Array_copy` - creates an independent copy (like Arduino String)
-- `Array_Shared` - creates a dependent copy, changes in one array are reflected on the other
-- `Array_uniq` - completely goes to the new object
+## Use of use
+### Allocator
+`array_x`/`stack_x`cherry`realloc`to resize. This allows you to change the size without creating holes in the memory, as in other vector-like libraries, the memory is used very efficiently. But at the same time **GTL arrays do not cause constructors and destructors**, so it is strongly recommended not to use them with objects that contain dynamic data (for example String) or copy/move semantics!!!
 
-`` `CPP
-T* buf ();
-size_t size ();
-Operator t*();
-Explicit Operator Bool ();
+### move
+`gtl::array`and`gtl::stack`support copy/move semantics, there is a function`gtl::move(x)`:
 
-// change the size in the number of elements t
-Bool Resize (Size_T Newsize);
+- `gtl::array<> a(b)` - copy
+- `gtl::array<> a(gtl::move(b))` - move
 
-// Delete the buffer
-VOID Reset ();
-`` `
+### gtl::array
+Dynamic Array
 
-## gtl :: stack_x
-The dynamic array, stores data linearly, allows you to add and remove it.Has several options:
-- `stack_ext` - External buffer
-- `stack_static` - internal static buffer
-- `stack_copy` - a dynamic buffer with semantics` Array_copy`
-- `stack_shared` - a dynamic buffer with semantics` Array_Shared`
-- `stack_uniq` - a dynamic buffer with semantics` Array_uniq`
+```cpp
+// buffering
+T* buf();
+operator T*();
 
-`` `CPP
-// Add to the end
-Bool Push (const t & val);
+// dimension
+uint16_t size();
 
-// Add to the end
-Bool Operator+= (Consta T & Val);
+// byte size
+size_t sizeBytes();
 
-// get from the end and delete
-T Pop ();
+// clean (fill in zeros)
+void clear();
 
-// read from the end without deleting
-T & Peek ();
+// resize the number of elements T
+bool resize(uint16_t size);
 
-// Add to the beginning
-Bool Shift (const t & val);
+// buffer
+void reset();
 
-// get from the beginning and delete
-T Unshift ();
+// Move (swap) from another instance
+void move(array& other);
+```
 
-// read from the beginning without deleting
-T & unpek ();
+### gtl::stack_x
+Dynamic array, stores data linearly, allows you to add and remove them. There are several options:
+- `stack`- dynamic buffer
+- `stack_ext`- external buffer
+- `stack_static`- internal static buffer
 
-// Delete the element.Negative - from the end
-Bool Remove (int IDX);
+```cpp
+// file
+bool writeToFile(FS& fs, const char* path);
 
-// insert the element to the index (the Length () index is allowed)
-Bool Insert (Intx, Const T&D);
+// file
+bool readFromFile(FS& fs, const char* path);
 
-// add another array to the end
-Bool Concat (const stock_ext & st);
+// export to Stream (e.g. file)
+bool writeTo(TS& stream);
 
-// add another array to the end
-Bool Operator+= (Const Stack_ext & ST);
+// Import from Stream (e.g. file)
+bool readFrom(TS& stream);
 
-// Fill in the value (on capacity)
-VOID Fill (const t & val);
+// finish
+bool push(const T& val, ...);
 
-// initialize, call designers (on capacity)
-VOID Init ();
+// add if there is no element with this value n
+bool pushUniq(const T& val);
 
-// Clean (set length 0)
-Void Clear ();
+// finish
+bool operator+=(const T& val);
 
-// amount of elements
-Size_t Length ();
+// finish off
+T pop();
 
-// Set the number of elements
-VOID Setlength (Size_T Newlen);
+// read out
+T& last();
 
-// there is a place to add
-Bool Canadd ();
+// begin
+bool shift(const T& val);
+
+// get out
+T unshift();
+
+// read from the beginning without removing
+T& first();
+
+// remove the element. Negative from the end.
+bool remove(int idx);
+
+// Remove several elements, starting with the index
+bool remove(size_t from, size_t amount);
+
+// insert an item on an index (length() index is allowed)
+bool insert(int idx, const T& val);
+
+// add another array
+bool concat(const stack_ext& st);
+bool concat(const T* buf, size_t len, bool pgm = false);
+
+// add another array
+bool operator+=(const stack_ext& st);
+
+// add binary
+size_t write(const void* buf, size_t len, bool pgm = false);
+
+// fill in the value (on capacity)
+void fill(const T& val);
+
+// Initialize, call constructors (to capacity)
+void init();
+
+// clean (set length 0)
+void clear();
+
+// byte size
+size_t size();
+
+// number
+size_t length();
+
+// There is free space, elements
+uint16_t left();
+
+// set up
+bool setLength(size_t len);
+
+// add
+bool addLength(size_t len);
+
+// there is room to add
+bool canAdd();
 
 // capacity, elements
-Size_t Capacy ();
+size_t capacity();
 
-// The position of the element (-1 if not found)
-InteXOF (COST T&LAL);
+// capacity, byte
+size_t capacityBytes();
 
-// contains an element
-Bool Includes (const t & val);
+// element position (-1 if not found)
+int indexOf(const T& val);
 
-// Delete in value (true if there is no element)
-Bool Removebyval (Constation T & Val);
+// component
+bool has(const T& val);
 
-// Get an element under the index.Negative - from the end
-T&Get (int IDX);
+// Remove the value (true if there is no element)
+bool removeByVal(const T& val);
 
-// Get an element under the index.Negative - from the end
-T & operator [] (int IDX);
+// Get an item under the index. Negative from the end.
+T& get(int idx);
 
-// access to the buffer
-inline t* buf ();
+// Get the index from the beginning without checking. Negative from the end.
+T& operator[](int idx);
+
+// buffering
+T* buf();
+
+// pointer
+T* end();
 
 // buffer exists
-Bool Valid ();
+bool valid();
 
 // buffer exists
-Explicit Operator Bool ();
+explicit operator bool();
 
-// for dynamic
-// reserve memory in the number of elements
-Bool Reserve (Size_T CAP);
+// Binary search in a sorted stack
+bsearch_t<T> searchSort(const T& val);
 
-// Delete the buffer
-VOID Reset ();
-`` `
+// add sorting. uniq flag - do not add if the element already exists
+bool addSort(const T& val, bool uniq = false);
 
-## gtl :: fifo_x
+// add sorted to bsearch t from searchSort
+bool addSort(const T& val, bsearch_t<T>& pos);
+
+// stack
+void sort();
+
+// FOR DYNAMIC
+// Increase the size to reduce the number of small locations. Shut up. 8.
+void setOversize(uint16_t oversize);
+
+// reserve elements (set a new buffer size)
+bool reserve(size_t size);
+
+// vacate the vacant reserved seat
+void shrink();
+
+// reserve elements (add to the current length)
+bool addCapacity(size_t size);
+
+// buffer
+void reset();
+```
+
+### gtl::fifo_x
 FIFO buffer
-- `fifo_ext` - external buffer
-- `fifo_static` - internal static buffer
+- `fifo_ext`- external buffer
+- `fifo_static`- internal static buffer
 
-`` `CPP
-// connect the buffer
-VOID SetBuffer (T* Buf, Uint8_t Capacy);
+```cpp
+// plug in
+void setBuffer(T* buf, Ti capacity);
 
-// entry in a buffetriver.Will return True with a successful recording
-Bool Write (const t & val);
+// Buffer entry. Return true upon successful recording
+bool write(const T& val);
 
-// buffer full
-Bool ISFull ();
+// Buffer entry. Return the number of recorded elements
+Ti write(const T* vals, Ti len);
 
-// buffer is empty
-Inline Bool ISEMPTY ();
+// buffer
+bool isFull();
 
-// Reading from the buffer
-T Read ();
+// buffer
+bool isEmpty();
 
-// returns extreme value without removal from the buffer
-T peek ();
+// buffering
+T& read();
 
-// The number of unread elements
-uint8_t available ();
+// Buffer reading. Return the number of items read
+Ti read(T* vals, Ti len);
 
-// buffer size
-uint8_t size ();
+// remove from the buffer, return the quantity
+Ti consume(Ti len);
 
-// Clean
-Void Clear ();
+// returns extreme value without removal from buffer
+T& peek();
+
+// Get a pointer to a continuous reading area
+T* peekBuffer();
+
+// Get the length of a continuous reading area
+Ti peekLength();
+
+// Get the index from the beginning. Negative from the end.
+T& get(int i);
+
+// Get the index from the beginning without checking. Negative from the end.
+T& operator[](int i);
+
+// last
+T& getLast();
+
+// number of unread elements
+size_t length();
+
+// buffer
+size_t size();
+
+// record-free
+size_t canWrite();
+
+// cleanse
+void clear();
 
 T* buffer;
-`` `
+```
 
-<a id="versions"> </a>
+### gtl::lbuf_x
+Linear buffer with overflow and sequential reading
+- `lbuf_ext`- external buffer
+- `lbuf_static`- internal static buffer
 
-## versions
-- V1.0
+```cpp
+// plug in
+void setBuffer(T* buf, Ti capacity);
 
-<a id="install"> </a>
+// buffer
+void write(T val);
+
+// buffering
+void write(size_t n, T val);
+
+// number-reading
+T& get(size_t n);
+
+// Get the index from the beginning without checking. Negative from the end.
+T& operator[](size_t n);
+
+// first (left) position
+Ti getHead();
+
+// buffer
+size_t size();
+
+// "clean" the buffer
+void clear();
+
+T* buffer = nullptr;
+```
+
+```cpp
+  lbuf_static<uint8_t, 8> buf;
+
+  for (int i = 0; i < 12; i++) {
+    buf.write(i);
+    for (int j = 0; j < 8; j++) {
+      Serial.print(buf.read(j));
+      Serial.print(',');
+    }
+    Serial.println();
+  }
+```
+
+### gtl::linked_list
+Related list for creating a dynamic array of objects in the stack. See example in examples
+```cpp
+// iterate
+list_iter iter();
+
+// add
+bool add(list_node& node);
+
+// add
+bool add(list_node* node);
+
+// remove
+void remove(list_node& node);
+
+// remove
+void remove(list_node* node);
+
+// list
+bool has(list_node& node);
+
+// list
+bool has(list_node* node);
+
+// length
+size_t length();
+
+// clear out
+void clear();
+
+// get the last item in the list
+list_node* getLast();
+```
+
+<a id="versions"></a>
+
+## Versions
+- v1.0
+- v1.1 - Added list
+
+<a id="install"></a>
 ## Installation
-- The library can be found by the name ** gtl ** and installed through the library manager in:
-- Arduino ide
-- Arduino ide v2
-- Platformio
-- [download library] (https://github.com/gyverlibs/gtl/archive/refs/heads/main.zip). Zip archive for manual installation:
-- unpack and put in * C: \ Program Files (X86) \ Arduino \ Libraries * (Windows X64)
-- unpack and put in * C: \ Program Files \ Arduino \ Libraries * (Windows X32)
-- unpack and put in *documents/arduino/libraries/ *
-- (Arduino id) Automatic installation from. Zip: * sketch/connect the library/add .Zip library ... * and specify downloaded archive
-- Read more detailed instructions for installing libraries [here] (https://alexgyver.ru/arduino-first/#%D0%A3%D1%81%D1%82%D0%B0%BD%D0%BE%BE%BE%BED0%B2%D0%BA%D0%B0_%D0%B1%D0%B8%D0%B1%D0%BB%D0%B8%D0%BE%D1%82%D0%B5%D0%BA)
+- The library can be found under the name **GTL** and installed through the library manager in:
+    - Arduino IDE
+    - Arduino IDE v2
+    - PlatformIO
+- [Download the library](https://github.com/GyverLibs/GTL/archive/refs/heads/main.zip).zip archive for manual installation:
+    - Unpack and put in *C:\Program Files (x86)\Arduino\libraries* (Windows x64)
+    - Unpack and put in *C:\Program Files\Arduino\libraries* (Windows x32)
+    - Unpack and put in *Documents/Arduino/libraries/ *
+    - (Arduino IDE) Automatic installation from .zip: *Sketch/Connect library/Add .ZIP library...* and specify downloaded archive
+- Read more detailed instructions for installing libraries[here](https://alexgyver.ru/arduino-first/#%D0%A3%D1%81%D1%82%D0%B0%D0%BD%D0%BE%D0%B2%D0%BA%D0%B0_%D0%B1%D0%B8%D0%B1%D0%BB%D0%B8%D0%BE%D1%82%D0%B5%D0%BA)
 ### Update
-- I recommend always updating the library: errors and bugs are corrected in the new versions, as well as optimization and new features are added
-- through the IDE library manager: find the library how to install and click "update"
-- Manually: ** remove the folder with the old version **, and then put a new one in its place.“Replacement” cannot be done: sometimes in new versions, files that remain when replacing are deleted and can lead to errors!
+- I recommend always updating the library: new versions fix errors and bugs, as well as optimize and add new features.
+- Through the library manager IDE: find the library as when installing and click "Update"
+- Manually: **Delete the folder with the old version** and then put the new one in its place. “Replacement” can not be done: sometimes new versions delete files that will remain when replaced and can lead to errors!
 
-<a id="feedback"> </a>
+<a id="feedback"></a>
 
-## bugs and feedback
-Create ** Issue ** when you find the bugs, and better immediately write to the mail [alex@alexgyver.ru] (mailto: alex@alexgyver.ru)
-The library is open for refinement and your ** pull Request ** 'ow!
+## Bugs and feedback
+If you find bugs, create **Issue**, or better write to the mail immediately.[alex@alexgyver.ru](mailto:alex@alexgyver.ru)  
+The library is open for revision and your **Pull Requests*!
 
-When reporting about bugs or incorrect work of the library, it is necessary to indicate:
-- The version of the library
-- What is MK used
+When reporting bugs or incorrect work of the library, it is necessary to specify:
+- Library version
+- What is used by the IC
 - SDK version (for ESP)
-- version of Arduino ide
-- whether the built -in examples work correctly, in which the functions and designs are used, leading to a bug in your code
-- what code has been loaded, what work was expected from it and how it works in reality
-- Ideally, attach the minimum code in which the bug is observed.Not a canvas of a thousand lines, but a minimum code
+- Arduino IDE version
+- Are embedded examples that use features and designs that cause bugs in your code working correctly?
+- What code was downloaded, what work was expected from it and how it works in reality
+- Ideally, attach the minimum code in which the bug is observed. Not a canvas of a thousand lines, but a minimum code.
