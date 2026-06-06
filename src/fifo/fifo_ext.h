@@ -125,9 +125,15 @@ class fifo_ext {
     T& peek() {
         return buffer[_head];
     }
+    const T& peek() const {
+        return buffer[_head];
+    }
 
     // получить указатель на непрерывный участок для чтения
     T* peekBuffer() {
+        return _len ? buffer + _head : nullptr;
+    }
+    const T* peekBuffer() const {
         return _len ? buffer + _head : nullptr;
     }
 
@@ -143,22 +149,31 @@ class fifo_ext {
     T& get(int i) {
         return (i >= int(_len) || i < -int(_len)) ? buffer[0] : (*this)[i];
     }
+    const T& get(int i) const {
+        return (i >= int(_len) || i < -int(_len)) ? buffer[0] : (*this)[i];
+    }
 
     // получить по индексу от начала без проверок. Отрицательный - с конца
     T& operator[](int i) {
-        if (i < 0) i += _len;
-        i += _head;
-        if (i >= int(_cap)) i -= _cap;
-        return buffer[i];
+        return buffer[_index(i)];
+    }
+    const T& operator[](int i) const {
+        return buffer[_index(i)];
     }
 
     // получить первый
     T& first() {
         return (*this)[0];
     }
+    const T& first() const {
+        return (*this)[0];
+    }
 
     // получить последний
     T& last() {
+        return (*this)[_len ? _len - 1 : 0];
+    }
+    const T& last() const {
         return (*this)[_len ? _len - 1 : 0];
     }
 
@@ -207,6 +222,13 @@ class fifo_ext {
 
    private:
     Ti _cap = 0, _head = 0, _len = 0;
+
+    Ti _index(int i) const {
+        if (i < 0) i += _len;
+        i += _head;
+        if (i >= int(_cap)) i -= _cap;
+        return Ti(i);
+    }
 };
 
 }  // namespace gtl
