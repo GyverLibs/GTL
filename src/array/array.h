@@ -40,6 +40,11 @@ class array : public array_ext<T> {
     bool resize(size_t len) {
         if (_size == len) return true;
 
+        if (!len) {
+            reset();
+            return true;
+        }
+
         void* buf = realloc(_buf, len * sizeof(T));
         if (!buf) return false;
 

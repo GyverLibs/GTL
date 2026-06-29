@@ -15,7 +15,13 @@ class ptr_shared {
 
    public:
     explicit ptr_shared(T* ptr) {
-        _data = new shared_data{ptr, 1};
+        _data = new shared_data;
+        if (_data) {
+            _data->ptr = ptr;
+            _data->count = 1;
+        } else {
+            delete ptr;
+        }
     }
 
     ptr_shared(const ptr_shared& val) {
