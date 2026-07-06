@@ -278,9 +278,10 @@ class stackT : protected AR {
     size_t write(const void* buf, size_t len, bool pgm = false) {
         if (!len || !buf) return 0;
 
-        if (len == sizeof(T) && !pgm) {
-            return push(*(const T*)buf) ? len : 0;
-        }
+        // slower!
+        // if (len == sizeof(T) && !pgm) {
+        //     return push(*(const T*)buf) ? sizeof(T) : 0;
+        // }
 
         size_t wlen = (len + sizeof(T) - 1) / sizeof(T);
         if (!_fit(_len + wlen)) return 0;

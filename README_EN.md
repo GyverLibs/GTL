@@ -41,7 +41,7 @@ Dynamic Array
 
 ```cpp
 // buffering
-T* buf();
+T* data();
 operator T*();
 
 // dimension
@@ -174,7 +174,7 @@ T& get(int idx);
 T& operator[](int idx);
 
 // buffering
-T* buf();
+T* data();
 
 // pointer
 T* end();
