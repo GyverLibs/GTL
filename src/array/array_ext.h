@@ -18,21 +18,32 @@ class array_ext {
     array_ext() {}
     array_ext(T* buf, size_t size) : _buf(buf), _size(size) {}
 
+    // указатель на данные
     inline T* buf() {
         return _buf;
     }
+
+    // указатель на данные
     inline const T* buf() const {
         return _buf;
     }
+
+    // указатель на данные
     inline T* data() {
         return _buf;
     }
+
+    // указатель на данные
     inline const T* data() const {
         return _buf;
     }
+
+    // указатель на данные
     operator T*() {
         return _buf;
     }
+
+    // указатель на данные
     operator const T*() const {
         return _buf;
     }

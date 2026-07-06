@@ -417,6 +417,7 @@ class stackT : protected AR {
 
     // буфер
     using AR::buf;
+    using AR::data;
 
     // legacy
     bool includes(const T& val) const __attribute__((deprecated)) {
