@@ -5,6 +5,9 @@ namespace gtl {
 
 template <typename T>
 struct bsearch_t {
+    bsearch_t() : bsearch_t(0, nullptr) {}
+    bsearch_t(size_t idx, T* ptr) : idx(idx), ptr(ptr) {}
+
     // индекс в стеке. Если ptr == nullptr - позиция для вставки
     size_t idx;
 
@@ -162,7 +165,7 @@ class stackT : protected AR {
             else high = mid;
         }
 
-        return {low, (low < _len && _buf[low] == val) ? &_buf[low] : nullptr};
+        return bsearch_t<T>(low, (low < _len && _buf[low] == val) ? &_buf[low] : nullptr);
     }
 
     // добавить с сортировкой. Флаг uniq - не добавлять если элемент уже есть
